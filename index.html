@@ -318,7 +318,7 @@
       color: #9ca3af;
     }
 
-    /* Composer & Feed Styles */
+    /* Composer & Live Preview Styles */
     .composer-card {
       background: #ffffff;
       border-radius: 16px;
@@ -401,10 +401,68 @@
       border-color: #2563eb;
     }
 
+    /* Live Preview Box */
+    .live-preview-box {
+      display: none;
+      background: #f8fafc;
+      border: 1.5px dashed #94a3b8;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+
+    .live-preview-box.visible {
+      display: block;
+    }
+
+    .live-preview-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #64748b;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .run-preview-js-btn {
+      background: #d97706;
+      color: #ffffff;
+      border: none;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: normal;
+      cursor: pointer;
+    }
+
+    .run-preview-js-btn:hover {
+      background: #b45309;
+    }
+
+    .live-preview-content {
+      font-size: 0.98rem;
+      color: #1f2937;
+      min-height: 28px;
+      word-break: break-word;
+    }
+
+    .live-preview-content.plain-text {
+      white-space: pre-wrap;
+    }
+
     .composer-footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .char-info {
@@ -412,62 +470,81 @@
       align-items: center;
       gap: 10px;
       font-size: 0.85rem;
-      color: #6b7280;
-    }
-
-    .shortnote-tag {
-      background: #fef3c7;
-      color: #92400e;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 9999px;
-      letter-spacing: 0.02em;
-    }
-
-    .elite-badge {
-      background: linear-gradient(135deg, #7c3aed, #2563eb);
-      color: #ffffff;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 9999px;
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-    }
-
-    .owner-badge {
-      background: linear-gradient(135deg, #f59e0b, #d97706);
-      color: #ffffff;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 9999px;
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-    }
-
-    .notemaker-badge {
-      background: #dcfce7;
-      color: #166534;
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 9999px;
-    }
-
-    .post-btn {
-      background-color: #2563eb;
-      color: #ffffff;
-      border: none;
-      padding: 9px 20px;
-      border-radius: 9999px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      cursor: pointer;
 Use code with caution.
+color: #6b7280;
+}
+.composer-actions-right {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.preview-toggle-btn {
+background: #f3f4f6;
+color: #374151;
+border: 1px solid #d1d5db;
+padding: 8px 14px;
+border-radius: 9999px;
+font-weight: 600;
+font-size: 0.88rem;
+cursor: pointer;
+transition: all 0.15s;
+}
+.preview-toggle-btn:hover {
+background: #e5e7eb;
+}
+.preview-toggle-btn.active {
+background: #eff6ff;
+color: #1d4ed8;
+border-color: #93c5fd;
+}
+.shortnote-tag {
+background: #fef3c7;
+color: #92400e;
+font-size: 0.75rem;
+font-weight: 700;
+padding: 2px 8px;
+border-radius: 9999px;
+letter-spacing: 0.02em;
+}
+.elite-badge {
+background: linear-gradient(135deg, #7c3aed, #2563eb);
+color: #ffffff;
+font-size: 0.72rem;
+font-weight: 700;
+padding: 2px 8px;
+border-radius: 9999px;
+display: inline-flex;
+align-items: center;
+gap: 3px;
+}
+.owner-badge {
+background: linear-gradient(135deg, #f59e0b, #d97706);
+color: #ffffff;
+font-size: 0.72rem;
+font-weight: 700;
+padding: 2px 8px;
+border-radius: 9999px;
+display: inline-flex;
+align-items: center;
+gap: 3px;
+}
+.notemaker-badge {
+background: #dcfce7;
+color: #166534;
+font-size: 0.72rem;
+font-weight: 700;
+padding: 2px 8px;
+border-radius: 9999px;
+}
+.post-btn {
+background-color: #2563eb;
+color: #ffffff;
+border: none;
+padding: 9px 20px;
+border-radius: 9999px;
+font-weight: 600;
+font-size: 0.95rem;
+cursor: pointer;
 transition: background-color 0.2s;
 }
 .post-btn:hover {
@@ -956,6 +1033,7 @@ const isLoggedIn = localStorage.getItem('loggedIn') === 'true';
 const currentUser = localStorage.getItem('username') || 'Guest';
 let activePdfId = null;
 let activePdfAuthor = '';
+let isLivePreviewOpen = false;
 const openReplyThreads = new Set();
 /* Site Owners & Directory */
 const siteOwners = ["Denis Kuizinas"];
@@ -1155,7 +1233,7 @@ unread: true
 saveNotifications(notifs);
 renderNotes();
 }
-/* Composer Logic */
+/* Composer & Live Preview Logic */
 function renderComposer() {
 const box = document.getElementById('composer-box');
 if (!isLoggedIn) {
@@ -1174,6 +1252,7 @@ box.innerHTML =
       ;
 return;
 }
+const existingDraft = document.getElementById('note-input')?.value || '';
 const notemakers = getNotemakers();
 const eliteActive = isUserElite(currentUser);
 const fullJsActive = hasFullJsPrivilege(currentUser);
@@ -1196,12 +1275,91 @@ box.innerHTML = `
 
 Solo Note
 ${collabOptions}
+${escapeHTML(existingDraft)}
+Live Preview
+
+${fullJsActive ?
+      <button type="button" class="run-preview-js-btn" onclick="updateLivePreview(true)">
+        ▶ Run Preview JS
+      </button>
+      : ''}
+
+
+
+
 0 / 1000
 shortnote
 
+
+
+👁️ Live Preview
+
 Post Note
 
+
 `;
+handleComposerInput();
+}
+function toggleLivePreview() {
+isLivePreviewOpen = !isLivePreviewOpen;
+const previewBox = document.getElementById('live-preview-box');
+const toggleBtn = document.getElementById('preview-toggle-btn');
+if (previewBox) previewBox.classList.toggle('visible', isLivePreviewOpen);
+if (toggleBtn) toggleBtn.classList.toggle('active', isLivePreviewOpen);
+if (isLivePreviewOpen) {
+updateLivePreview(true);
+}
+}
+function handleComposerInput() {
+const input = document.getElementById('note-input');
+if (!input) return;
+const len = input.value.trim().length;
+document.getElementById('char-count').innerText = ${input.value.length} / 1000;
+const badge = document.getElementById('composer-shortnote-badge');
+badge.style.display = (len > 0 && len
+      <= 20) ? 'inline-block' : 'none';
+if (isLivePreviewOpen) {
+updateLivePreview(false);
+}
+}
+function updateLivePreview(runScripts = false) {
+const input = document.getElementById('note-input');
+const contentEl = document.getElementById('live-preview-content');
+const modeLabel = document.getElementById('live-preview-mode-label');
+const typeBadge = document.getElementById('live-preview-type-badge');
+if (!input || !contentEl) return;
+const rawText = input.value;
+const trimmedLen = rawText.trim().length;
+const fullJsActive = hasFullJsPrivilege(currentUser);
+const eliteActive = isUserElite(currentUser);
+if (fullJsActive) {
+modeLabel.innerText = 'Live Preview (Owner / Full JS)';
+} else if (eliteActive) {
+modeLabel.innerText = 'Live Preview (Elite MD/HTML/CSS)';
+} else {
+modeLabel.innerText = 'Live Preview (Standard Note)';
+}
+if (trimmedLen === 0) {
+typeBadge.innerHTML = '';
+contentEl.className = 'live-preview-content plain-text';
+contentEl.innerHTML = 'Start typing above to preview your note...';
+return;
+}
+if (trimmedLen <= 20) {
+typeBadge.innerHTML = 'shortnote (no PDF)';
+} else {
+typeBadge.innerHTML = '📄 Opens in PDF view';
+}
+if (eliteActive || fullJsActive) {
+contentEl.className = 'live-preview-content';
+contentEl.innerHTML = renderRichNote(rawText, fullJsActive);
+if (fullJsActive && runScripts) {
+executeEmbeddedScripts(contentEl);
+}
+} else {
+contentEl.className = 'live-preview-content plain-text';
+contentEl.innerText = rawText;
+}
 }
 function toggleEliteStatus(checked) {
 localStorage.setItem('isCurrentUserElite', checked ? 'true' : 'false');
@@ -1220,14 +1378,6 @@ localStorage.setItem('isCurrentUserElite', 'true');
 }
 renderComposer();
 renderNotes();
-}
-function updateCharCount() {
-const input = document.getElementById('note-input');
-const len = input.value.trim().length;
-document.getElementById('char-count').innerText = ${input.value.length} / 1000;
-const badge = document.getElementById('composer-shortnote-badge');
-badge.style.display = (len > 0 && len
-      <= 20) ? 'inline-block' : 'none';
 }
 function getNotes() {
 const saved = localStorage.getItem('lolNotes');
@@ -1263,12 +1413,11 @@ replies: []
 notes.unshift(newNote);
 saveNotes(notes);
 input.value = '';
-updateCharCount();
+handleComposerInput();
 renderNotes();
 }
 /* Sanitize Limited JS vs Unrestricted Full JS /
 function sanitizeLimitedJs(html) {
-// Strip  tags and dangerous global access for standard Elite Notemakers
 return html
 .replace(/
         <script\b[^<](?:(?!</script>
@@ -1291,7 +1440,6 @@ formatted = sanitizeLimitedJs(formatted);
 }
 return formatted;
 }
-/* Execute  tags injected into DOM for Owner / Permitted Full JS notes */
 function executeEmbeddedScripts(container) {
 const scripts = container.querySelectorAll('script');
 scripts.forEach(oldScript => {
@@ -1460,7 +1608,8 @@ bodyEl.classList.remove('elite-rendered');
 bodyEl.innerText = item.text;
 }
 document.getElementById('pdf-char-count').innerText = ${item.text.length} characters;
-document.getElementById('workspace').classList.add('pdf-mode');
+document.getElementById('
+workspace').classList.add('pdf-mode');
 renderNotes();
 }
 function closePdfViewer() {
@@ -1643,15 +1792,15 @@ card.innerHTML =
                     <div class="note-author-info" onclick="openUserProfile('escapeAttr(note.author)')" title="View {escapeAttr(note.author)}'s profile">
                       <div class="avatar-wrap">
                         <div class="note-avatar">
-                          \({note.author.charAt(0).toUpperCase()}
+                          note.author.charAt(0).toUpperCase()
                         </div>
-                        \){(isFriend || isOwner) ?: ''}
+                        {(isFriend || isOwner) ?: ''}
                       </div>
                       <div>
                         <div class="author-name-line">
                           <span class="note-author">
                             escapeHTML(note.author){note.collaborator ? & ${escapeHTML(note.collaborator)}` : ''}
-\(badges\){isFriend && !isOwner ? '🤝 Notemaker' : ''}
+badges{isFriend && !isOwner ? '🤝 Notemaker' : ''}
 
 ${escapeHTML(note.handle)}
 
@@ -1665,7 +1814,7 @@ ${!isOwner ?
                               ${isFriend ? '🤝 Already Notemakers' : '➕ Ask to be Notemakers'}
                             </button>
                             : ''}
-\(ownerGrantOption\){!isShortnote ?
+ownerGrantOption{!isShortnote ?
                             <button type="button" onclick="openPdfNote(${note.id})">
                               📄 Open in PDF Style
                             </button>
