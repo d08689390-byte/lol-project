@@ -309,7 +309,7 @@
     </div>
     <header class="header-nav-container">
       <a href="index.html" class="home-link">
-        ← Back to Home
+        ← Back to Feed
       </a>
       <div class="nav-wrapper">
         <button type="button" class="profile-link-btn" id="dynamic-user-nav" onclick="toggleDropdown(event)">
@@ -351,8 +351,8 @@
           <h1 id="display-username">
             User
           </h1>
-          <p>
-            Member of The lol project
+          <p id="display-handle">
+            @user
           </p>
         </div>
       </div>
@@ -364,22 +364,22 @@
           ⚙️ Settings
         </button>
         <button type="button" class="tab-btn" data-tab="documents" onclick="switchTab('documents')">
-          📁 Documents
+          📁 Saved Drafts
         </button>
       </div>
       <!-- Profile Tab -->
       <section id="tab-profile" class="tab-content active">
         <div class="form-group">
           <label for="profile-name">
-            Username
+            Display Name
           </label>
           <input type="text" id="profile-name">
         </div>
         <div class="form-group">
           <label for="profile-bio">
-            About Me / Favorite Note
+            Bio
           </label>
-          <textarea id="profile-bio" rows="3" placeholder="Write something funny about yourself...">
+          <textarea id="profile-bio" rows="3" placeholder="Tell people what kind of notes you share...">
           </textarea>
         </div>
         <button type="button" class="btn-primary" onclick="saveProfile()">
@@ -399,13 +399,13 @@
         <div class="checkbox-row">
           <input type="checkbox" id="notif-toggle" checked>
           <label for="notif-toggle" style="margin-bottom: 0;">
-            Receive daily note notifications
+            Notify me when someone likes my notes
           </label>
         </div>
         <div class="checkbox-row">
           <input type="checkbox" id="public-profile" checked>
           <label for="public-profile" style="margin-bottom: 0;">
-            Show my profile to other members
+            Make my notes public on the main feed
           </label>
         </div>
         <button type="button" class="btn-primary" onclick="saveSettings()">
@@ -414,15 +414,15 @@
         <span class="status-msg" id="settings-status">
         </span>
       </section>
-      <!-- Documents Tab -->
+      <!-- Documents / Drafts Tab -->
       <section id="tab-documents" class="tab-content">
         <label for="new-doc-title">
-          Create a New Note Draft
+          Save a Note Draft for Later
         </label>
         <div class="doc-input-row">
-          <input type="text" id="new-doc-title" placeholder="Enter note title...">
+          <input type="text" id="new-doc-title" placeholder="Write a draft note or joke idea...">
           <button type="button" class="btn-primary" onclick="addDocument()">
-            Add
+            Save Draft
           </button>
         </div>
         <ul class="doc-list" id="doc-list">
@@ -435,14 +435,15 @@
     }
 
     const defaultDocs = [
-      "Welcome Note - Getting Started with lol project",
+      "Note idea: Thoughts on building a social network from scratch",
+      "Joke draft: Why do programmers prefer dark mode? Because light attracts bugs!"
     ];
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const savedUser = localStorage.getItem('username') || 'User';
-      const savedBio = localStorage.getItem('userBio') || '';
-
+document.addEventListener('DOMContentLoaded', () => {
+const savedUser = localStorage.getItem('username') || 'User';
+const savedBio = localStorage.getItem('userBio') || '';
 document.getElementById('display-username').innerText = savedUser;
+document.getElementById('display-handle').innerText = '@' + savedUser.toLowerCase().replace(/\s+/g, '');
 document.getElementById('avatar-initials').innerText = savedUser.charAt(0).toUpperCase();
 document.getElementById('profile-name').value = savedUser;
 document.getElementById('profile-bio').value = savedBio;
@@ -463,6 +464,7 @@ const updatedBio = document.getElementById('profile-bio').value.trim();
 if (updatedUser) {
 localStorage.setItem('username', updatedUser);
 document.getElementById('display-username').innerText = updatedUser;
+document.getElementById('display-handle').innerText = '@' + updatedUser.toLowerCase().replace(/\s+/g, '');
 document.getElementById('avatar-initials').innerText = updatedUser.charAt(0).toUpperCase();
 }
 localStorage.setItem('userBio', updatedBio);
@@ -485,7 +487,7 @@ const list = document.getElementById('doc-list');
 const docs = getDocs();
 list.innerHTML = '';
 if (docs.length === 0) {
-list.innerHTML = 'No documents saved yet.';
+list.innerHTML = 'No saved drafts yet.';
 return;
 }
 docs.forEach((doc, index) => {
@@ -493,7 +495,7 @@ const li = document.createElement('li');
 li.className = 'doc-item';
 li.innerHTML =
       <span>
-        📄 ${doc}
+        📝 ${doc}
       </span>
       <button type="button" class="delete-doc-btn" onclick="deleteDocument(${index})">
         Delete
