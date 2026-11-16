@@ -17,21 +17,27 @@
       color: #1f2937;
       line-height: 1.6;
       min-height: 100vh;
+      padding: 24px 20px;
+    }
+
+    #lollogo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #lollogo img {
+      height: 120px;
+      max-width: 100%;
+      width: auto;
+      display: inline-block;
     }
 
     .header-nav-container {
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 16px 24px;
-    }
-
-    .brand-logo img {
-      height: 44px;
-      width: auto;
-      display: block;
+      max-width: 640px;
+      margin: 0 auto 24px auto;
     }
 
     .nav-wrapper {
@@ -106,7 +112,7 @@
 
     #site-content {
       max-width: 640px;
-      margin: 48px auto;
+      margin: 0 auto;
       padding: 40px 32px;
       background: #ffffff;
       border-radius: 16px;
@@ -133,11 +139,12 @@
 </head>
 <body>
 
-  <header class="header-nav-container">
-    <div id="lollogo" class="brand-logo">
-      <img src="lollogo.png" alt="Lol Project Logo" id="lollogoImage">
-    </div>
+  <!-- TOP CENTER LOGO -->
+  <div id="lollogo">
+    <img src="lollogo.png" alt="Lol Project Logo" id="lollogoImage">
+  </div>
 
+  <header class="header-nav-container">
     <div class="nav-wrapper">
       <button type="button" class="profile-link-btn" id="dynamic-user-nav" onclick="handleNavClick(event)">
         <svg class="profile-icon" viewBox="0 0 24 24" aria-hidden="true">
