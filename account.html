@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+      My Account - The lol project
+    </title>
+    <style>
+      * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #f0f8ff;
+      color: #1f2937;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 24px 20px 48px 20px;
+    }
+
+    #lollogo {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    #lollogo img {
+      height: 120px;
+      max-width: 100%;
+      width: auto;
+      display: inline-block;
+    }
+
+    .header-nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 760px;
+      margin: 0 auto 24px auto;
+    }
+
+    .home-link {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .home-link:hover {
+      text-decoration: underline;
+    }
+
+    .nav-wrapper {
+      position: relative;
+    }
+
+    .profile-link-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #1f2937;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: 1px solid #d1d5db;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      background: #ffffff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease;
+    }
+
+    .profile-link-btn:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+
+    .profile-icon {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+    }
+
+    .nav-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      width: 190px;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .nav-dropdown-menu a {
+      display: block;
+      padding: 10px 16px;
+      text-decoration: none;
+      color: #374151;
+      font-size: 0.95rem;
+      border-bottom: 1px solid #f3f4f6;
+      transition: background 0.15s ease;
+    }
+
+    .nav-dropdown-menu a:last-child {
+      border-bottom: none;
+    }
+
+    .nav-dropdown-menu a:hover {
+      background: #f3f4f6;
+    }
+
+    .nav-dropdown-menu a.logout-link {
+      color: #dc2626;
+      font-weight: 500;
+    }
+
+    .account-container {
+      max-width: 760px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      overflow: hidden;
+    }
+
+    .account-header {
+      padding: 28px 32px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .avatar-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #dbeafe;
+      color: #1d4ed8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .account-header h1 {
+      font-size: 1.5rem;
+      color: #111827;
+    }
+
+    .account-header p {
+      color: #6b7280;
+      font-size: 0.95rem;
+    }
+
+    .tabs {
+      display: flex;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 14px;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #4b5563;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: #111827;
+      background: #f3f4f6;
+    }
+
+    .tab-btn.active {
+      color: #2563eb;
+      border-bottom-color: #2563eb;
+      background: #ffffff;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 32px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #374151;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .btn-primary {
+      padding: 10px 20px;
+      background-color: #2563eb;
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-primary:hover {
+      background-color: #1d4ed8;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      font-size: 0.95rem;
+      color: #374151;
+    }
+
+    .doc-input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .doc-list {
+      list-style: none;
+    }
+
+    .doc-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      background: #f9fafb;
+    }
+
+    .delete-doc-btn {
+      background: none;
+      border: none;
+      color: #dc2626;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .delete-doc-btn:hover {
+      text-decoration: underline;
+    }
+
+    .status-msg {
+      display: inline-block;
+      margin-left: 12px;
+      font-size: 0.9rem;
+      color: #059669;
+      font-weight: 500;
+    }
+    </style>
+  </head>
+  <body>
+    <div id="lollogo">
+      <a href="index.html">
+        <img src="lollogo.png" alt="Lol Project Logo">
+      </a>
+    </div>
+    <header class="header-nav-container">
+      <a href="index.html" class="home-link">
+        ← Back to Home
+      </a>
+      <div class="nav-wrapper">
+        <button type="button" class="profile-link-btn" id="dynamic-user-nav" onclick="toggleDropdown(event)">
+          <svg class="profile-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="8" r="4">
+            </circle>
+            <path d="M4 21c.7-4 3.4-6 8-6s7.3 2 8 6">
+            </path>
+          </svg>
+          <span id="nav-button-text">
+            My Account
+          </span>
+        </button>
+        <div class="nav-dropdown-menu" id="account-dropdown">
+          <a href="#settings" onclick="switchTab('settings')">
+            ⚙️ Settings
+          </a>
+          <a href="#profile" onclick="switchTab('profile')">
+            👤 Profile
+          </a>
+          <a href="#documents" onclick="switchTab('documents')">
+            📁 Documents
+          </a>
+          <a href="messages.html">
+            ✉️ Messages
+          </a>
+          <a href="#" class="logout-link" onclick="logoutUser(event)">
+            🚪 Log Out
+          </a>
+        </div>
+      </div>
+    </header>
+    <main class="account-container">
+      <div class="account-header">
+        <div class="avatar-circle" id="avatar-initials">
+          U
+        </div>
+        <div>
+          <h1 id="display-username">
+            User
+          </h1>
+          <p>
+            Member of The lol project
+          </p>
+        </div>
+      </div>
+      <div class="tabs">
+        <button type="button" class="tab-btn active" data-tab="profile" onclick="switchTab('profile')">
+          👤 Profile
+        </button>
+        <button type="button" class="tab-btn" data-tab="settings" onclick="switchTab('settings')">
+          ⚙️ Settings
+        </button>
+        <button type="button" class="tab-btn" data-tab="documents" onclick="switchTab('documents')">
+          📁 Documents
+        </button>
+      </div>
+      <!-- Profile Tab -->
+      <section id="tab-profile" class="tab-content active">
+        <div class="form-group">
+          <label for="profile-name">
+            Username
+          </label>
+          <input type="text" id="profile-name">
+        </div>
+        <div class="form-group">
+          <label for="profile-bio">
+            About Me / Favorite Note
+          </label>
+          <textarea id="profile-bio" rows="3" placeholder="Write something funny about yourself...">
+          </textarea>
+        </div>
+        <button type="button" class="btn-primary" onclick="saveProfile()">
+          Save Profile
+        </button>
+        <span class="status-msg" id="profile-status">
+        </span>
+      </section>
+      <!-- Settings Tab -->
+      <section id="tab-settings" class="tab-content">
+        <div class="form-group">
+          <label for="new-password">
+            Change Password
+          </label>
+          <input type="password" id="new-password" placeholder="Enter new password">
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="notif-toggle" checked>
+          <label for="notif-toggle" style="margin-bottom: 0;">
+            Receive daily note notifications
+          </label>
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="public-profile" checked>
+          <label for="public-profile" style="margin-bottom: 0;">
+            Show my profile to other members
+          </label>
+        </div>
+        <button type="button" class="btn-primary" onclick="saveSettings()">
+          Save Settings
+        </button>
+        <span class="status-msg" id="settings-status">
+        </span>
+      </section>
+      <!-- Documents Tab -->
+      <section id="tab-documents" class="tab-content">
+        <label for="new-doc-title">
+          Create a New Note Draft
+        </label>
+        <div class="doc-input-row">
+          <input type="text" id="new-doc-title" placeholder="Enter note title...">
+          <button type="button" class="btn-primary" onclick="addDocument()">
+            Add
+          </button>
+        </div>
+        <ul class="doc-list" id="doc-list">
+        </ul>
+      </section>
+    </main>
+    <script>
+      if (localStorage.getItem('loggedIn') !== 'true') {
+      window.location.href = 'login.html';
+    }
+
+    const defaultDocs = [
+      "Welcome Note - Getting Started with lol project",
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedUser = localStorage.getItem('username') || 'User';
+      const savedBio = localStorage.getItem('userBio') || '';
+
+document.getElementById('display-username').innerText = savedUser;
+document.getElementById('avatar-initials').innerText = savedUser.charAt(0).toUpperCase();
+document.getElementById('profile-name').value = savedUser;
+document.getElementById('profile-bio').value = savedBio;
+renderDocs();
+});
+function switchTab(tabName) {
+document.querySelectorAll('.tab-btn').forEach(btn => {
+btn.classList.toggle('active', btn.dataset.tab === tabName);
+});
+document.querySelectorAll('.tab-content').forEach(section => {
+section.classList.toggle('active', section.id === 'tab-' + tabName);
+});
+document.getElementById('account-dropdown').style.display = 'none';
+}
+function saveProfile() {
+const updatedUser = document.getElementById('profile-name').value.trim();
+const updatedBio = document.getElementById('profile-bio').value.trim();
+if (updatedUser) {
+localStorage.setItem('username', updatedUser);
+document.getElementById('display-username').innerText = updatedUser;
+document.getElementById('avatar-initials').innerText = updatedUser.charAt(0).toUpperCase();
+}
+localStorage.setItem('userBio', updatedBio);
+const status = document.getElementById('profile-status');
+status.innerText = 'Profile saved!';
+setTimeout(() => status.innerText = '', 2500);
+}
+function saveSettings() {
+document.getElementById('new-password').value = '';
+const status = document.getElementById('settings-status');
+status.innerText = 'Settings updated!';
+setTimeout(() => status.innerText = '', 2500);
+}
+function getDocs() {
+const stored = localStorage.getItem('userDocs');
+return stored ? JSON.parse(stored) : defaultDocs;
+}
+function renderDocs() {
+const list = document.getElementById('doc-list');
+const docs = getDocs();
+list.innerHTML = '';
+if (docs.length === 0) {
+list.innerHTML = 'No documents saved yet.';
+return;
+}
+docs.forEach((doc, index) => {
+const li = document.createElement('li');
+li.className = 'doc-item';
+li.innerHTML =
+      <span>
+        📄 ${doc}
+      </span>
+      <button type="button" class="delete-doc-btn" onclick="deleteDocument(${index})">
+        Delete
+      </button>
+      ;
+list.appendChild(li);
+});
+}
+function addDocument() {
+const input = document.getElementById('new-doc-title');
+const title = input.value.trim();
+if (!title) return;
+const docs = getDocs();
+docs.unshift(title);
+localStorage.setItem('userDocs', JSON.stringify(docs));
+input.value = '';
+renderDocs();
+}
+function deleteDocument(index) {
+const docs = getDocs();
+docs.splice(index, 1);
+localStorage.setItem('userDocs', JSON.stringify(docs));
+renderDocs();
+}
+function toggleDropdown(e) {
+e.stopPropagation();
+const dropdown = document.getElementById('account-dropdown');
+dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+}
+function logoutUser(e) {
+e.preventDefault();
+localStorage.setItem('loggedIn', 'false');
+window.location.href = 'index.html';
+}
+window.addEventListener('click', (e) => {
+const navButton = document.getElementById('dynamic-user-nav');
+const dropdown = document.getElementById('account-dropdown');
+if (navButton && dropdown && !navButton.contains(e.target)) {
+dropdown.style.display = 'none';
+}
+});
