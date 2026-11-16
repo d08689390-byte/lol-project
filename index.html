@@ -1193,7 +1193,7 @@
         }
         function simulateFollowedPost() {
         const following = getFollowing();
-        const author = following.length > 0 ? following : "Denis Kuizinas";
+        const author = following.length > 0 ? following[0] : "Denis Kuizinas";
         const sampleText = "Just dropped a brand new note! Make sure to check it out in PDF mode.";
         const notes = getNotes();
         notes.unshift({
