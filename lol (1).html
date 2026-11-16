@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to the lol project!</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: #f0f8ff;
+      color: #1f2937;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .header-nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 16px 24px;
+    }
+
+    .brand-logo img {
+      height: 44px;
+      width: auto;
+      display: block;
+    }
+
+    .nav-wrapper {
+      position: relative;
+    }
+
+    .profile-link-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #1f2937;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      border: 1px solid #d1d5db;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      background: #ffffff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease;
+    }
+
+    .profile-link-btn:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+
+    .profile-icon {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+    }
+
+    .nav-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      width: 190px;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .nav-dropdown-menu a {
+      display: block;
+      padding: 10px 16px;
+      text-decoration: none;
+      color: #374151;
+      font-size: 0.95rem;
+      border-bottom: 1px solid #f3f4f6;
+      transition: background 0.15s ease;
+    }
+
+    .nav-dropdown-menu a:last-child {
+      border-bottom: none;
+    }
+
+    .nav-dropdown-menu a:hover {
+      background: #f3f4f6;
+    }
+
+    .nav-dropdown-menu a.logout-link {
+      color: #dc2626;
+      font-weight: 500;
+    }
+
+    #site-content {
+      max-width: 640px;
+      margin: 48px auto;
+      padding: 40px 32px;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #111827;
+      margin-bottom: 16px;
+    }
+
+    #lolinfo p {
+      color: #4b5563;
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+    }
+
+    #lolinfo p:last-child {
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header-nav-container">
+    <div id="lollogo" class="brand-logo">
+      <img src="lollogo.png" alt="Lol Project Logo" id="lollogoImage">
+    </div>
+
+    <div class="nav-wrapper">
+      <button type="button" class="profile-link-btn" id="dynamic-user-nav" onclick="handleNavClick(event)">
+        <svg class="profile-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="8" r="4"></circle>
+          <path d="M4 21c.7-4 3.4-6 8-6s7.3 2 8 6"></path>
+        </svg>
+        <span id="nav-button-text">Login/Sign Up</span>
+      </button>
+
+      <!-- Account Actions Dropdown -->
+      <div class="nav-dropdown-menu" id="account-dropdown">
+        <a href="account.html">⚙️ Settings</a>
+        <a href="account.html">👤 Profile</a>
+        <a href="account.html">📁 Documents</a>
+        <a href="messages.html">✉️ Messages</a>
+        <a href="#" class="logout-link" onclick="logoutUser(event)">🚪 Log Out</a>
+      </div>
+    </div>
+  </header>
+
+  <main id="site-content">
+    <h1>Welcome to the lol project!</h1>
+    <div id="lolinfo">
+      <p>The lol project is a coding project made by Denis Kuizinas in November 2026 - April 2027.</p>
+      <p>Experience laughter, jokes, and other stuff here.</p>
+    </div>
+  </main>
+
+  <script>
+    const isLoggedIn = localStorage.getItem('loggedIn') === 'true';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const navText = document.getElementById('nav-button-text');
+      navText.innerText = isLoggedIn ? "My Account" : "Login/Sign Up";
+    });
+
+    function handleNavClick(e) {
+      if (e) e.stopPropagation();
+      if (!isLoggedIn) {
+        window.location.href = "login.html";
+      } else {
+        const dropdown = document.getElementById('account-dropdown');
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+      }
+    }
+
+    function logoutUser(e) {
+      e.preventDefault();
+      localStorage.setItem('loggedIn', 'false');
+      window.location.reload();
+    }
+
+    window.addEventListener('click', (e) => {
+      const navButton = document.getElementById('dynamic-user-nav');
+      const dropdown = document.getElementById('account-dropdown');
+      if (navButton && dropdown && !navButton.contains(e.target)) {
+        dropdown.style.display = 'none';
+      }
+    });
+  </script>
+
+</body>
+</html>
