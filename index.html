@@ -9,6 +9,10 @@
       box-sizing: border-box;
     }
 
+    [hidden] {
+      display: none !important;
+    }
+
     body {
       margin: 0;
       padding: 24px 16px 48px;
@@ -22,7 +26,8 @@
       font: inherit;
     }
 
-    button {
+    button,
+    a {
       cursor: pointer;
     }
 
@@ -37,6 +42,20 @@
       align-items: center;
       gap: 12px;
       margin-bottom: 20px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .site-logo {
+      display: block;
+      width: 44px;
+      height: 44px;
+      object-fit: contain;
     }
 
     h1 {
@@ -59,6 +78,12 @@
       color: #374151;
       padding: 8px 14px;
       font-weight: 600;
+    }
+
+    .pill-button {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
     }
 
     .pill-button:hover {
@@ -188,7 +213,9 @@
     }
 
     .note-body h2,
-    .note-body h3 {
+    .n
+1000
+ote-body h3 {
       margin: 8px 0;
     }
 
@@ -347,18 +374,27 @@
       .header {
         align-items: flex-start;
       }
+
+      .site-logo {
+        width: 36px;
+        height: 36px;
+      }
     }
   </style>
 </head>
 <body>
   <header class="header page">
-    <h1>The lol project</h1>
+    <div class="header-brand">
+      <img class="site-logo" src="/lollogo.png" alt="The lol project logo">
+      <h1>The lol project</h1>
+    </div>
+
     <div class="header-actions">
       <button class="pill-button" id="notification-button" type="button"
               aria-expanded="false" aria-controls="notification-menu">
         🔔 <span id="notification-count">0</span>
       </button>
-      <button class="pill-button" id="login-button" type="button">Log in</button>
+      <a class="pill-button" id="login-button" href="/login.html">Log in</a>
     </div>
   </header>
 
@@ -377,7 +413,14 @@
         <p>A small social platform for sharing notes and shortnotes.</p>
       </section>
 
-      <section class="composer" id="composer">
+      <p class="muted" id="login-prompt"
+1000
+>
+        You are viewing as a guest.
+        <a href="/login.html">Log in</a> to write a note or reply.
+      </p>
+
+      <section class="composer" id="composer" hidden>
         <label for="note-input"><strong>Write a note</strong></label>
         <textarea id="note-input" maxlength="1000"
                   placeholder="Write a note (up to 1,000 characters)..."></textarea>
@@ -385,9 +428,6 @@
           <span class="muted"><span id="char-count">0</span> / 1000 characters</span>
           <button class="post-button" id="post-button" type="button">Post note</button>
         </div>
-        <p class="muted" id="login-prompt" hidden>
-          You are viewing as a guest. Enter a username to post or reply.
-        </p>
       </section>
 
       <h2 class="feed-title">Latest notes</h2>
@@ -483,7 +523,7 @@
       })[character]);
     }
 
-    // Only basic formatting is supported. Input is escaped before markup is added.
+    // Input is escaped before supported formatting markup is added.
     function formatNote(text) {
       return escapeHTML(text)
         .replace(/^### (.+)$/gm, "<h3>$1</h3>")
@@ -494,7 +534,13 @@
     }
 
     function currentUsername() {
-      return localStorage.getItem(STORAGE_KEYS.username) || "";
+      return (localStorage.getItem(STORAGE_KEYS.username) || "").trim();
+    }
+
+    function updateAuthUI() {
+      const loggedIn = Boolean(currentUsername());
+      document.getElementById("composer").hidden = !loggedIn;
+      document.getElementById("login-prompt").hidden = loggedIn;
     }
 
     function renderNotifications() {
@@ -502,7 +548,9 @@
       const unreadCount = notifications.filter(item => item.unread).length;
 
       document.getElementById("notification-count").textContent = unreadCount;
-      document.getElementById("notification-list").innerHTML =
+     
+1000
+ document.getElementById("notification-list").innerHTML =
         notifications.length === 0
           ? '<p class="notification-item">No notifications yet.</p>'
           : notifications.map(item => `
@@ -574,7 +622,7 @@
     function postNote() {
       const username = currentUsername();
       if (!username) {
-        document.getElementById("login-prompt").hidden = false;
+        updateAuthUI();
         return;
       }
 
@@ -606,36 +654,20 @@
 
     document.getElementById("post-button").addEventListener("click", postNote);
 
-    document.getElementById("login-button").addEventListener("click", () => {
-      const existingName = currentUsername();
-      const name = window.prompt("Enter a username:", existingName || "");
-      if (name === null) return;
-
-      const username = name.trim();
-      if (!username) {
-        localStorage.removeItem(STORAGE_KEYS.username);
-        document.getElementById("login-button").textContent = "Log in";
-        document.getElementById("login-prompt").hidden = false;
-        return;
-      }
-
-      localStorage.setItem(STORAGE_KEYS.username, username);
-      document.getElementById("login-button").textContent = username;
-      document.getElementById("login-prompt").hidden = true;
-    });
-
     document.getElementById("notes-feed").addEventListener("click", event => {
       const button = event.target.closest("button[data-action]");
       if (!button) return;
 
       const id = Number(button.dataset.id);
       const notes = getNotes();
-      const note = notes.find(item => item.id === id);
+      const note = notes.find(item => Number(item.id) === id);
       if (!note) return;
 
       if (button.dataset.action === "pdf") {
         openPdf(note);
-      } else if (button.dataset.action === "like") {
+      } else if (but
+9ee
+ton.dataset.action === "like") {
         note.liked = !note.liked;
         note.likes = Math.max(0, note.likes + (note.liked ? 1 : -1));
         saveJSON(STORAGE_KEYS.notes, notes);
@@ -651,7 +683,7 @@
 
       const username = currentUsername();
       if (!username) {
-        document.getElementById("login-prompt").hidden = false;
+        updateAuthUI();
         return;
       }
 
@@ -661,7 +693,7 @@
       if (!text) return;
 
       const notes = getNotes();
-      const note = notes.find(item => item.id === noteId);
+      const note = notes.find(item => Number(item.id) === noteId);
       if (!note) return;
 
       note.replies.push({
@@ -705,12 +737,7 @@
       }
     });
 
-    const username = currentUsername();
-    if (username) {
-      document.getElementById("login-button").textContent = username;
-      document.getElementById("login-prompt").hidden = true;
-    }
-
+    updateAuthUI();
     renderNotifications();
     renderNotes();
   </script>
