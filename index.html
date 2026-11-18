@@ -1,1740 +1,732 @@
+The supplied source is too damaged to fix with isolated syntax edits: the page markup is missing, CSS contains non-CSS text, and many JavaScript template strings and expressions are malformed. Here is a complete, runnable replacement that keeps the main features—notes, replies, likes, notifications, and a PDF-style reader—while safely treating user content as text.
+
+```html
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to the lol project!</title>
-    <style>
-        * {
-          box-sizing: border-box;
-          margin: 0;
-          padding: 0;
-        }
-    
-        body {
-          font-family: system-ui, -apple-system, sans-serif;
-          background-color: #f0f8ff;
-          color: #1f2937;
-          line-height: 1.6;
-          min-height: 100vh;
-          padding: 24px 20px 60px 20px;
-        }
-    
-        #lollogo {
-          text-align: center;
-          margin-bottom: 20px;
-        }
-    
-        #lollogo img {
-          height: 120px;
-          max-width: 100%;
-          width: auto;
-          display: inline-block;
-        }
-    
-        .header-nav-container {
-          display: flex;
-          justify-content: flex-end;
-          align-items: center;
-          gap: 12px;
-          max-width: 680px;
-          margin: 0 auto 24px auto;
-        }
-    
-        .nav-wrapper {
-          position: relative;
-        }
-    
-        .profile-link-btn, .notif-btn {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #1f2937;
-          font-weight: 600;
-          font-size: 0.95rem;
-          cursor: pointer;
-          border: 1px solid #d1d5db;
-          padding: 8px 16px;
-          border-radius: 9999px;
-          background: #ffffff;
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-          transition: all 0.2s ease;
-        }
-    
-        .notif-btn {
-          padding: 8px 14px;
-          position: relative;
-        }
-    
-        .profile-link-btn:hover, .notif-btn:hover {
-          background: #f9fafb;
-          border-color: #9ca3af;
-        }
-    
-        .notif-badge {
-          background: #ef4444;
-          color: #ffffff;
-          font-size: 0.72rem;
-          font-weight: 700;
-          padding: 1px 6px;
-          border-radius: 9999px;
-          display: none;
-        }
-    
-        .profile-icon {
-          width: 20px;
-          height: 20px;
-          fill: none;
-          stroke: currentColor;
-          stroke-width: 2;
-        }
-    
-        .nav-dropdown-menu, .notif-dropdown-menu {
-          display: none;
-          position: absolute;
-          top: calc(100% + 8px);
-          right: 0;
-          background: #ffffff;
-          border: 1px solid #e5e7eb;
-          border-radius: 12px;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.12);
-          width: 210px;
-          z-index: 100;
-          overflow: hidden;
-        }
-    
-        .notif-dropdown-menu {
-          width: 300px;
-        }
-    
-        .notif-header {
-          padding: 10px 14px;
-          font-weight: 700;
-          font-size: 0.88rem;
-          background: #f9fafb;
-          border-bottom: 1px solid #e5e7eb;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-    
-        .notif-list {
-          max-height: 260px;
-          overflow-y: auto;
-        }
-    
-        .notif-item {
-          padding: 10px 14px;
-          border-bottom: 1px solid #f3f4f6;
-          font-size: 0.86rem;
-          color: #374151;
-        }
-    
-        .notif-item.unread {
-          background: #eff6ff;
-          font-weight: 500;
-        }
-    
-        .nav-dropdown-menu a {
-          display: block;
-          padding: 10px 16px;
-          text-decoration: none;
-          color: #374151;
-          font-size: 0.95rem;
-          border-bottom: 1px solid #f3f4f6;
-          transition: background 0.15s ease;
-        }
-    
-        .nav-dropdown-menu a:last-child {
-          border-bottom: none;
-        }
-    
-        .nav-dropdown-menu a:hover {
-          background: #f3f4f6;
-        }
-    
-        .nav-dropdown-menu a.logout-link {
-          color: #dc2626;
-          font-weight: 500;
-        }
-    
-        #site-content {
-          max-width: 680px;
-          margin: 0 auto 24px auto;
-          padding: 28px 32px;
-          background: #ffffff;
-          border-radius: 16px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-          text-align: center;
-        }
-    
-        h1 {
-          font-size: 1.85rem;
-          color: #111827;
-          margin-bottom: 10px;
-        }
-    
-        #lolinfo p {
-          color: #4b5563;
-          font-size: 1rem;
-          margin-bottom: 6px;
-        }
-    
-        #lolinfo p:last-child {
-          margin-bottom: 0;
-        }
-    
-        .workspace-layout {
-          max-width: 680px;
-          margin: 0 auto;
-          transition: max-width 0.25s ease;
-        }
-    
-        .workspace-layout.pdf-mode {
-          max-width: 1220px;
-          display: grid;
-          grid-template-columns: 1.25fr 0.95fr;
-          gap: 24px;
-          align-items: start;
-        }
-    
-        @media (max-width: 900px) {
-          .workspace-layout.pdf-mode {
-            grid-template-columns: 1fr;
-          }
-        }
-    
-        .pdf-viewer-panel {
-          display: none;
-          background: #525659;
-          border-radius: 16px;
-          padding: 18px;
-          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-          position: sticky;
-          top: 20px;
-        }
-    
-        .workspace-layout.pdf-mode .pdf-viewer-panel {
-          display: block;
-        }
-    
-        .pdf-toolbar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background: #323639;
-          color: #f3f4f6;
-          padding: 10px 16px;
-          border-radius: 10px;
-          margin-bottom: 16px;
-          font-size: 0.9rem;
-        }
-    
-        .pdf-toolbar-title {
-          font-weight: 600;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-    
-        .pdf-close-btn {
-          background: #ef4444;
-          color: #ffffff;
-          border: none;
-          padding: 5px 12px;
-          border-radius: 6px;
-          font-size: 0.85rem;
-          font-weight: 600;
-          cursor: pointer;
-        }
-    
-        .pdf-close-btn:hover {
-          background: #dc2626;
-        }
-    
-        .pdf-sheet {
-          background: #ffffff;
-          min-height: 460px;
-          padding: 48px 44px;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-          font-family: Georgia, 'Times New Roman', serif;
-          color: #111827;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-        }
-    
-        .pdf-doc-header {
-          border-bottom: 2px solid #e5e7eb;
-          padding-bottom: 14px;
-          margin-bottom: 24px;
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-          font-family: system-ui, -apple-system, sans-serif;
-        }
-    
-        .pdf-doc-author {
-          font-weight: 700;
-          font-size: 1.05rem;
-          color: #111827;
-          cursor: pointer;
-        }
-    
-        .pdf-doc-author:hover {
-          color: #2563eb;
-          text-decoration: underline;
-        }
-    
-        .pdf-doc-meta {
-          font-size: 0.85rem;
-          color: #6b7280;
-        }
-    
-        .pdf-doc-body {
-          font-size: 1.15rem;
-          line-height: 1.8;
-          white-space: pre-wrap;
-          flex: 1;
-        }
-    
-        .pdf-doc-body.elite-rendered {
-          white-space: normal;
-          font-family: system-ui, -apple-system, sans-serif;
-        }
-    
-        .pdf-doc-footer {
-          border-top: 1px solid #e5e7eb;
-          padding-top: 12px;
-          margin-top: 32px;
-          display: flex;
-          justify-content: space-between;
-          font-family: system-ui, -apple-system, sans-serif;
-          font-size: 0.8rem;
-          color: #9ca3af;
-        }
-    
-        .composer-card {
-          background: #ffffff;
-          border-radius: 16px;
-          padding: 20px 24px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-          margin-bottom: 24px;
-        }
-    
-        .composer-top-controls {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 10px;
-          flex-wrap: wrap;
-          gap: 8px;
-          font-size: 0.85rem;
-        }
-    
-        .collab-select {
-          padding: 5px 10px;
-          border: 1px solid #d1d5db;
-          border-radius: 8px;
-          font-size: 0.85rem;
-          background: #f9fafb;
-        }
-    
-        .privilege-toggles {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          flex-wrap: wrap;
-        }
-    
-        .elite-toggle-label {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          font-weight: 600;
-          color: #7c3aed;
-          cursor: pointer;
-        }
-    
-        .owner-toggle-label {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          font-weight: 700;
-          color: #b45309;
-          cursor: pointer;
-        }
-    
-        .composer-card textarea {
-          width: 100%;
-          border: 1px solid #e5e7eb;
-          border-radius: 10px;
-          padding: 12px 14px;
-          font-family: inherit;
-          font-size: 1rem;
-          resize: vertical;
-          margin-bottom: 12px;
-          transition: border-color 0.2s;
-        }
-    
-        .composer-card textarea.elite-code-mode {
-          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-          font-size: 0.9rem;
-          background: #faf5ff;
-          border-color: #c4b5fd;
-        }
-    
-        .composer-card textarea.fulljs-code-mode {
-          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-          font-size: 0.9rem;
-          background: #fffbeb;
-          border-color: #fcd34d;
-        }
-    
-        .composer-card textarea:focus {
-          outline: none;
-          border-color: #2563eb;
-        }
-    
-        .live-preview-box {
-          display: none;
-          background: #f8fafc;
-          border: 1.5px dashed #94a3b8;
-          border-radius: 12px;
-          padding: 14px 16px;
-          margin-bottom: 14px;
-        }
-    
-        .live-preview-box.visible {
-          display: block;
-        }
-    
-        .live-preview-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 0.78rem;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-          color: #64748b;
-          margin-bottom: 8px;
-          padding-bottom: 6px;
-          border-bottom: 1px solid #e2e8f0;
-        }
-    
-        .run-preview-js-btn {
-          background: #d97706;
-          color: #ffffff;
-          border: none;
-          padding: 3px 10px;
-          border-radius: 6px;
-          font-size: 0.75rem;
-          font-weight: 700;
-          text-transform: none;
-          letter-spacing: normal;
-          cursor: pointer;
-        }
-    
-        .run-preview-js-btn:hover {
-          background: #b45309;
-        }
-    
-        .live-preview-content {
-          font-size: 0.98rem;
-          color: #1f2937;
-          min-height: 28px;
-          word-break: break-word;
-        }
-    
-        .live-preview-content.plain-text {
-          white-space: pre-wrap;
-        }
-    
-        .composer-footer {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 10px;
-        }
-    
-        .char-info {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-size: 0.85rem;
-          color: #6b7280;
-        }
-    
-        .composer-actions-right {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-    
-        .preview-toggle-btn {
-    Use code with caution.
-    background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    padding: 8px 14px;
-    border-radius: 9999px;
-    font-weight: 600;
-    font-size: 0.88rem;
-    cursor: pointer;
-    transition: all 0.15s;
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The lol project</title>
+  <style>
+    * {
+      box-sizing: border-box;
     }
-    .preview-toggle-btn:hover {
-    background: #e5e7eb;
+
+    body {
+      margin: 0;
+      padding: 24px 16px 48px;
+      background: #f0f8ff;
+      color: #1f2937;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
     }
-    .preview-toggle-btn.active {
-    background: #eff6ff;
-    color: #1d4ed8;
-    border-color: #93c5fd;
+
+    button, textarea, input {
+      font: inherit;
     }
-    .shortnote-tag {
-    background: #fef3c7;
-    color: #92400e;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 9999px;
-    letter-spacing: 0.02em;
+
+    button {
+      cursor: pointer;
     }
-    .elite-badge {
-    background: linear-gradient(135deg, #7c3aed, #2563eb);
-    color: #ffffff;
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 9999px;
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
+
+    .page {
+      max-width: 680px;
+      margin: 0 auto;
     }
-    .owner-badge {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: #ffffff;
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 9999px;
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
     }
-    .notemaker-badge {
-    background: #dcfce7;
-    color: #166534;
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 9999px;
+
+    h1 {
+      margin: 0;
+      color: #111827;
+      font-size: 1.6rem;
     }
-    .post-btn {
-    background-color: #2563eb;
-    color: #ffffff;
-    border: none;
-    padding: 9px 20px;
-    border-radius: 9999px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
     }
-    .post-btn:hover {
-    background-color: #1d4ed8;
+
+    .pill-button,
+    .post-button,
+    .close-button {
+      border: 1px solid #d1d5db;
+      border-radius: 999px;
+      background: #fff;
+      color: #374151;
+      padding: 8px 14px;
+      font-weight: 600;
     }
-    .login-prompt {
-    text-align: center;
-    color: #4b5563;
-    font-size: 0.95rem;
+
+    .pill-button:hover {
+      background: #f3f4f6;
     }
-    .login-prompt a {
-    color: #2563eb;
-    font-weight: 600;
-    text-decoration: none;
+
+    .notification-menu {
+      display: none;
+      position: absolute;
+      right: 16px;
+      top: 70px;
+      z-index: 10;
+      width: min(300px, calc(100vw - 32px));
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 10px 24px #0002;
     }
-    .feed-header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 14px;
-    padding: 0 4px;
+
+    .notification-menu.open {
+      display: block;
     }
-    .feed-title {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #111827;
+
+    .notification-heading {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: #f9fafb;
+      font-weight: 700;
     }
-    .simulate-btn {
-    background: #ffffff;
-    border: 1px solid #d1d5db;
-    color: #374151;
-    font-size: 0.8rem;
-    font-weight: 600;
-    padding: 5px 10px;
-    border-radius: 8px;
-    cursor: pointer;
+
+    .notification-item {
+      padding: 10px 14px;
+      border-top: 1px solid #f3f4f6;
+      font-size: 0.9rem;
     }
-    .simulate-btn:hover {
-    background: #f3f4f6;
+
+    .notification-item.unread {
+      background: #eff6ff;
     }
+
+    .intro,
+    .composer,
     .note-card {
-    background: #ffffff;
-    border-radius: 16px;
-    padding: 20px 24px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-    margin-bottom: 14px;
-    border: 2px solid transparent;
-    transition: border-color 0.15s;
+      margin-bottom: 16px;
+      padding: 20px 22px;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 3px 16px #0000000d;
     }
-    .note-card.active-pdf {
-    border-color: #2563eb;
+
+    .intro {
+      text-align: center;
     }
-    .note-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
+
+    .intro p {
+      margin: 8px 0 0;
+      color: #4b5563;
     }
-    .note-author-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
+
+    .composer textarea {
+      display: block;
+      width: 100%;
+      min-height: 100px;
+      margin: 12px 0;
+      padding: 12px;
+      resize: vertical;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
     }
-    .note-author-info:hover .note-author {
-    color: #2563eb;
-    text-decoration: underline;
-    }
-    .avatar-wrap {
-    position: relative;
-    flex-shrink: 0;
-    }
-    .note-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #dbeafe;
-    color: #1d4ed8;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    }
-    .online-dot {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 11px;
-    height: 11px;
-    border-radius: 50%;
-    border: 2px solid #ffffff;
-    }
-    .online-dot.online {
-    background: #22c55e;
-    }
-    .online-dot.offline {
-    background: #9ca3af;
-    }
-    .author-name-line {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-    }
-    .note-author {
-    font-weight: 700;
-    color: #111827;
-    font-size: 0.95rem;
-    }
-    .note-handle {
-    color: #6b7280;
-    font-size: 0.83rem;
-    }
-    .note-meta-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    position: relative;
-    }
-    .note-time {
-    font-size: 0.8rem;
-    color: #9ca3af;
-    }
-    .dots-btn {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #6b7280;
-    cursor: pointer;
-    padding: 2px 8px;
-    border-radius: 6px;
-    line-height: 1;
-    }
-    .dots-btn:hover {
-    background: #f3f4f6;
-    color: #111827;
-    }
-    .dots-menu {
-    display: none;
-    position: absolute;
-    top: 28px;
-    right: 0;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.12);
-    width: 225px;
-    z-index: 90;
-    overflow: hidden;
-    }
-    .dots-menu.open {
-    display: block;
-    }
-    .dots-menu button {
-    width: 100%;
-    text-align: left;
-    background: none;
-    border: none;
-    padding: 10px 14px;
-    font-size: 0.88rem;
-    color: #374151;
-    cursor: pointer;
-    border-bottom: 1px solid #f3f4f6;
-    display: block;
-    }
-    .dots-menu button:last-child {
-    border-bottom: none;
-    }
-    .dots-menu button:hover {
-    background: #f3f4f6;
-    }
-    .note-body {
-    color: #1f2937;
-    font-size: 1rem;
-    white-space: pre-wrap;
-    margin-bottom: 14px;
-    }
-    .note-body.elite-rendered {
-    white-space: normal;
-    }
-    .note-body.pdf-clickable {
-    cursor: pointer;
-    padding: 8px 10px;
-    margin-left: -10px;
-    margin-right: -10px;
-    border-radius: 8px;
-    transition: background-color 0.15s;
-    }
-    .note-body.pdf-clickable:hover {
-    background-color: #f8fafc;
-    }
-    .note-actions {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    border-top: 1px solid #f3f4f6;
-    padding-top: 10px;
-    flex-wrap: wrap;
-    }
-    .action-btn {
-    background: none;
-    border: none;
-    color: #6b7280;
-    font-size: 0.88rem;
-    font-weight: 600;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    transition: color 0.15s;
-    }
-    .action-btn:hover {
-    color: #2563eb;
-    }
-    .action-btn.liked {
-    color: #e11d48;
-    }
-    .action-btn.delete:hover {
-    color: #dc2626;
-    }
-    .replies-section {
-    display: none;
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px dashed #e5e7eb;
-    }
-    .replies-section.open {
-    display: block;
-    }
-    .reply-item {
-    background: #f9fafb;
-    border-left: 3px solid #cbd5e1;
-    padding: 10px 14px;
-    border-radius: 0 10px 10px 0;
-    margin-bottom: 10px;
-    }
-    .reply-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 4px;
-    font-size: 0.85rem;
-    }
-    .reply-author {
-    font-weight: 700;
-    color: #111827;
-    cursor: pointer;
-    }
-    .reply-author:hover {
-    color: #2563eb;
-    text-decoration: underline;
-    }
-    .reply-text {
-    font-size: 0.93rem;
-    color: #374151;
-    white-space: pre-wrap;
-    }
-    .reply-text.pdf-clickable {
-    cursor: pointer;
-    padding: 4px 6px;
-    margin-left: -6px;
-    border-radius: 6px;
-    }
-    .reply-text.pdf-clickable:hover {
-    background: #eef2ff;
-    }
-    .reply-form {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-    }
-    .reply-form input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    }
+
+    .composer textarea:focus,
     .reply-form input:focus {
-    outline: none;
-    border-color: #2563eb;
+      outline: 2px solid #93c5fd;
+      border-color: #2563eb;
     }
+
+    .composer-footer,
+    .note-header,
+    .note-actions,
+    .reply-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .muted {
+      color: #6b7280;
+      font-size: 0.88rem;
+    }
+
+    .post-button {
+      border-color: #2563eb;
+      background: #2563eb;
+      color: white;
+    }
+
+    .post-button:hover {
+      background: #1d4ed8;
+    }
+
+    .feed-title {
+      margin: 22px 0 12px;
+      font-size: 1.15rem;
+    }
+
+    .note-header {
+      margin-bottom: 10px;
+    }
+
+    .note-author {
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .note-time {
+      color: #9ca3af;
+      font-size: 0.82rem;
+    }
+
+    .note-body {
+      margin: 12px 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .note-body h2,
+    .note-body h3 {
+      margin: 8px 0;
+    }
+
+    .note-body code {
+      padding: 2px 4px;
+      border-radius: 4px;
+      background: #f3f4f6;
+      font-family: ui-monospace, monospace;
+    }
+
+    .note-actions {
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      padding-top: 10px;
+      border-top: 1px solid #f3f4f6;
+    }
+
+    .text-button {
+      padding: 4px 0;
+      border: 0;
+      background: transparent;
+      color: #4b5563;
+      font-weight: 600;
+    }
+
+    .text-button:hover {
+      color: #2563eb;
+    }
+
+    .text-button.liked {
+      color: #e11d48;
+    }
+
+    .reply-list {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed #d1d5db;
+    }
+
+    .reply-item {
+      margin-bottom: 8px;
+      padding: 10px 12px;
+      border-left: 3px solid #cbd5e1;
+      border-radius: 0 8px 8px 0;
+      background: #f9fafb;
+    }
+
+    .reply-form {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .reply-form input {
+      flex: 1;
+      min-width: 0;
+      padding: 8px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+    }
+
     .reply-form button {
-    background: #2563eb;
-    color: #ffffff;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
+      border: 0;
+      border-radius: 8px;
+      background: #2563eb;
+      color: #fff;
+      padding: 8px 12px;
     }
-    .reply-form button:hover {
-    background: #1d4ed8;
+
+    .workspace {
+      max-width: 680px;
+      margin: 0 auto;
     }
-    .modal-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(17, 24, 39, 0.55);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+
+    .workspace.pdf-mode {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.9fr);
+      gap: 20px;
+      max-width: 1220px;
     }
-    .modal-backdrop.open {
-    display: flex;
+
+    .workspace.pdf-mode .feed-column {
+      min-width: 0;
     }
-    .profile-modal {
-    background: #ffffff;
-    width: 100%;
-    max-width: 540px;
-    max-height: 85vh;
-    border-radius: 16px;
-    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
-    overflow-y: auto;
-    padding: 28px;
+
+    .pdf-panel {
+      display: none;
+      position: sticky;
+      top: 16px;
+      align-self: start;
+      padding: 16px;
+      border-radius: 14px;
+      background: #525659;
+      color: #fff;
     }
-    .profile-modal-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 14px;
+
+    .pdf-mode .pdf-panel {
+      display: block;
     }
-    .profile-modal-user {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+
+    .pdf-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
     }
-    .profile-modal-avatar {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    background: #dbeafe;
-    color: #1d4ed8;
-    font-size: 1.4rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
+    .close-button {
+      padding: 5px 10px;
+      background: #ef4444;
+      color: #fff;
+      border: 0;
     }
-    .modal-close-btn {
-    background: #f3f4f6;
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    font-size: 1.1rem;
-    cursor: pointer;
-    color: #4b5563;
+
+    .pdf-sheet {
+      min-height: 360px;
+      padding: 28px;
+      background: #fff;
+      color: #111827;
+      font-family: Georgia, "Times New Roman", serif;
+      overflow-wrap: anywhere;
     }
-    .modal-close-btn:hover {
-    background: #e5e7eb;
+
+    .pdf-meta {
+      padding-bottom: 10px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #e5e7eb;
+      font: 0.9rem system-ui, sans-serif;
     }
-    .profile-action-bar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
+
+    .pdf-content {
+      white-space: pre-wrap;
     }
-    .follow-btn {
-    padding: 8px 18px;
-    border-radius: 9999px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    border: 1px solid #2563eb;
-    background: #2563eb;
-    color: #ffffff;
-    transition: all 0.15s;
+
+    @media (max-width: 850px) {
+      .workspace.pdf-mode {
+        grid-template-columns: 1fr;
+      }
+
+      .pdf-panel {
+        position: static;
+      }
     }
-    .follow-btn.following {
-    background: #ffffff;
-    color: #2563eb;
+
+    @media (max-width: 520px) {
+      body {
+        padding: 16px 12px 32px;
+      }
+
+      .intro,
+      .composer,
+      .note-card {
+        padding: 16px;
+      }
+
+      .header {
+        align-items: flex-start;
+      }
     }
-    .notemaker-btn {
-    padding: 8px 16px;
-    border-radius: 9999px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    border: 1px solid #16a34a;
-    background: #f0fdf4;
-    color: #15803d;
-    }
-    .permit-js-btn {
-    padding: 8px 16px;
-    border-radius: 9999px;
-    font-weight: 600;
-    font-size: 0.9rem;
-    cursor: pointer;
-    border: 1px solid #d97706;
-    background: #fffbeb;
-    color: #b45309;
-    }
-    .profile-modal-bio {
-    color: #4b5563;
-    font-size: 0.95rem;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #e5e7eb;
-    }
-    .profile-modal-notes-title {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 12px;
-    color: #111827;
-    }
-    .profile-note-mini {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-    font-size: 0.93rem;
-    }
-    
-    
-    🔔 0
-    
-    
-    
-    Notifications
-    Mark read
-    
-    
-    
-    Login/Sign Up
-    ⚙️ Settings
-    👤 Profile
-    📁 Documents
-    ✉️ Messages
-    🚪 Log Out
-    
-    
-    Welcome to the lol project!
-    
-    The lol project is a social platform made by Denis Kuizinas in November 2026 - April 2027.
-    Elite Notemakers use HTML/CSS/MD & limited JS, while Site Owners & Permitted Creators unlock full unrestricted JavaScript!
-    
-    📄
-    Note Document.pdf
-    
-    ✕ Close PDF
-    
-    
-    
-    
-    
-    Author Name
-    @handle
-    
-    Just now
-    
-    
-    
-    
-    The lol project — Note Reader
-    0 characters
-    
-    
-    Latest Notes
-    
-    ⚡ Test Follow Alert
-    
-    
-    
-    U
-    
-    
-    User
-    
-    
-    @user
-    
-    
-    ✕
-    Member of The lol project.
-    Notes by User
-    
-    
-    const isLoggedIn = localStorage.getItem('loggedIn') === 'true';
-    const currentUser = localStorage.getItem('username') || 'Guest';
-    let activePdfId = null;
-    let activePdfAuthor = '';
-    let isLivePreviewOpen = false;
-    const openReplyThreads = new Set();
-    const siteOwners = ["Denis Kuizinas"];
-    const userDirectory = {
-    "Denis Kuizinas": {
-    handle: "@denis",
-    bio: "Site Owner & Creator of The lol project (Nov 2026 - Apr 2027). Full JavaScript enabled.",
-    isOwner: true,
-    isElite: true,
-    eliteReason: "Site Owner & Creator",
-    online: true
-    },
-    "BeatDropper": {
-    handle: "@beatdropper",
-    bio: "Electronic music producer & streamer (45K YouTube Subscribers). Elite Notemaker.",
-    isOwner: false,
-    isElite: true,
-    eliteReason: "Music Artist & 45K YouTube Subs",
-    online: true
-    },
-    "Sarah M.": {
-    handle: "@sarahm",
-    bio: "Frontend tinkerer, coffee enthusiast, and collector of shortnotes.",
-    isOwner: false,
-    isElite: false,
-    online: false
-    }
+  </style>
+</head>
+<body>
+  <header class="header page">
+    <h1>The lol project</h1>
+    <div class="header-actions">
+      <button class="pill-button" id="notification-button" type="button"
+              aria-expanded="false" aria-controls="notification-menu">
+        🔔 <span id="notification-count">0</span>
+      </button>
+      <button class="pill-button" id="login-button" type="button">Log in</button>
+    </div>
+  </header>
+
+  <aside class="notification-menu" id="notification-menu" aria-label="Notifications">
+    <div class="notification-heading">
+      <span>Notifications</span>
+      <button class="text-button" id="mark-read-button" type="button">Mark read</button>
+    </div>
+    <div id="notification-list"></div>
+  </aside>
+
+  <main class="workspace" id="workspace">
+    <div class="feed-column">
+      <section class="intro">
+        <h2>Welcome to the lol project!</h2>
+        <p>A small social platform for sharing notes and shortnotes.</p>
+      </section>
+
+      <section class="composer" id="composer">
+        <label for="note-input"><strong>Write a note</strong></label>
+        <textarea id="note-input" maxlength="1000"
+                  placeholder="Write a note (up to 1,000 characters)..."></textarea>
+        <div class="composer-footer">
+          <span class="muted"><span id="char-count">0</span> / 1000 characters</span>
+          <button class="post-button" id="post-button" type="button">Post note</button>
+        </div>
+        <p class="muted" id="login-prompt" hidden>
+          You are viewing as a guest. Enter a username to post or reply.
+        </p>
+      </section>
+
+      <h2 class="feed-title">Latest notes</h2>
+      <section id="notes-feed" aria-live="polite"></section>
+    </div>
+
+    <aside class="pdf-panel" id="pdf-panel" aria-label="Note reader">
+      <div class="pdf-toolbar">
+        <strong>📄 Note reader</strong>
+        <button class="close-button" id="close-pdf-button" type="button">Close</button>
+      </div>
+      <article class="pdf-sheet">
+        <div class="pdf-meta">
+          <strong id="pdf-author"></strong><br>
+          <span id="pdf-time" class="muted"></span>
+        </div>
+        <div class="pdf-content" id="pdf-content"></div>
+      </article>
+    </aside>
+  </main>
+
+  <script>
+    "use strict";
+
+    const STORAGE_KEYS = {
+      username: "lolUsername",
+      notes: "lolNotes",
+      notifications: "lolNotifications"
     };
+
     const starterNotes = [
-    {
-    id: 1,
-    author: "Denis Kuizinas",
-    handle: "@denis",
-    time: "2h ago",
-    isEliteContent: true,
-    isFullJsContent: true,
-    text: "### Welcome to The lol project! 🎉\nAs the Site Owner, I can run unrestricted Full JS, HTML, CSS, and Markdown inside notes!\n\nLoading live owner script...\n<" + "script>\n  setInterval(() => {\n    const el = document.getElementById('owner-live-clock');\n    if (el) el.innerText = '👑 Live Owner JS Clock: ' + new Date().toLocaleTimeString();\n  }, 1000);\n</" + "script>",
-    likes: 24,
-    liked: false,
-    replies: [
-    {
-    id: 101,
-    author: "Sarah M.",
-    handle: "@sarahm",
-    time: "1h ago",
-    text: "Whoa, a live ticking clock running directly inside a note!"
-    },
-    {
-    id: 102,
-    author: "Denis Kuizinas",
-    handle: "@denis",
-    time: "40m ago",
-    text: "Thanks!"
-    }
-    ]
-    },
-    {
-    id: 2,
-    author: "BeatDropper",
-    handle: "@beatdropper",
-    time: "1h ago",
-    isEliteContent: true,
-    isFullJsContent: false,
-    text: "New Synth Track Preview 🎹 (Standard Elite Limited JS)\n<button style='background:#7c3aed; color:white; border:none; padding:6px 14px; border-radius:8px; cursor:pointer; font-weight:600; margin-top:6px;' onclick="event.stopPropagation(); alert('🎵 Playing synth loop preview!')">▶ Play Interactive Demo",
-    likes: 34,
-    liked: false,
-    replies: []
-    },
-    {
-    id: 3,
-    author: "Sarah M.",
-    handle: "@sarahm",
-    time: "30m ago",
-    isEliteContent: false,
-    isFullJsContent: false,
-    text: "Hello world!",
-    likes: 7,
-    liked: false,
-    replies: []
-    }
+      {
+        id: 1,
+        author: "Denis Kuizinas",
+        time: "2h ago",
+        text: "Welcome to The lol project! 🎉\nShare a note with the community.",
+        likes: 2,
+        liked: false,
+        replies: []
+      },
+      {
+        id: 2,
+        author: "Sarah M.",
+        time: "30m ago",
+        text: "Hello world!",
+        likes: 1,
+        liked: false,
+        replies: []
+      }
     ];
-    function getFullJsPermittedUsers() {
-    return JSON.parse(localStorage.getItem('lolFullJsUsers') || '["Denis Kuizinas"]');
+
+    function readJSON(key, fallback) {
+      try {
+        const value = localStorage.getItem(key);
+        return value === null ? fallback : JSON.parse(value);
+      } catch (error) {
+        console.warn(`Could not read "${key}" from localStorage:`, error);
+        return fallback;
+      }
     }
-    function saveFullJsPermittedUsers(list) {
-    localStorage.setItem('lolFullJsUsers', JSON.stringify(list));
+
+    function saveJSON(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (error) {
+        console.warn(`Could not save "${key}" to localStorage:`, error);
+      }
     }
-    function isUserOwner(name) {
-    if (siteOwners.includes(name)) return true;
-    if (name === currentUser && localStorage.getItem('isCurrentUserOwner') === 'true') return true;
-    return Boolean(userDirectory[name]?.isOwner);
-    }
-    function hasFullJsPrivilege(name) {
-    if (isUserOwner(name)) return true;
-    if (name === currentUser && localStorage.getItem('isCurrentUserFullJs') === 'true') return true;
-    return getFullJsPermittedUsers().includes(name);
-    }
-    function isUserElite(name) {
-    if (hasFullJsPrivilege(name)) return true;
-    if (name === currentUser && localStorage.getItem('isCurrentUserElite') === 'true') return true;
-    return Boolean(userDirectory[name]?.isElite);
-    }
-    function isUserOnline(name) {
-    if (name === currentUser) return true;
-    return Boolean(userDirectory[name]?.online);
-    }
-    function getFollowing() {
-    return JSON.parse(localStorage.getItem('lolFollowing') || '["Denis Kuizinas"]');
-    }
-    function saveFollowing(list) {
-    localStorage.setItem('lolFollowing', JSON.stringify(list));
-    }
-    function getNotemakers() {
-    return JSON.parse(localStorage.getItem('lolNotemakers') || '["Denis Kuizinas"]');
-    }
-    function saveNotemakers(list) {
-    localStorage.setItem('lolNotemakers', JSON.stringify(list));
-    }
-    function getNotifications() {
-    return JSON.parse(localStorage.getItem('lolNotifications') || JSON.stringify([
-    { id: 1, text: "Denis Kuizinas wrote a new note: 'Welcome to The lol project!'", unread: true },
-    { id: 2, text: "Denis Kuizinas accepted your request to be Notemakers! 🤝", unread: false }
-    ]));
-    }
-    function saveNotifications(list) {
-    localStorage.setItem('lolNotifications', JSON.stringify(list));
-    renderNotifications();
-    }
-    document.addEventListener('DOMContentLoaded', () => {
-    const navText = document.getElementById('nav-button-text');
-    navText.innerText = isLoggedIn ? currentUser : "Login/Sign Up";
-    renderNotifications();
-    renderComposer();
-    renderNotes();
-    });
-    function renderNotifications() {
-    const notifs = getNotifications();
-    const unreadCount = notifs.filter(n => n.unread).length;
-    const badge = document.getElementById('notif-badge');
-    if (unreadCount > 0) {
-    badge.style.display = 'inline-block';
-    badge.innerText = unreadCount;
-    } else {
-    badge.style.display = 'none';
-    }
-    const list = document.getElementById('notif-list');
-    if (notifs.length === 0) {
-    list.innerHTML = 'No notifications yet.';
-    return;
-    }
-    list.innerHTML = notifs.map(n => <div class="notif-item ${n.unread ? 'unread' : ''}">${escapeHTML(n.text)}</div>).join('');
-    }
-    function toggleNotifDropdown(e) {
-    e.stopPropagation();
-    document.getElementById('account-dropdown').style.display = 'none';
-    const menu = document.getElementById('notif-dropdown');
-    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-    }
-    function markAllRead() {
-    const notifs = getNotifications().map(n => ({ ...n, unread: false }));
-    saveNotifications(notifs);
-    }
-    function simulateFollowedPost() {
-    const following = getFollowing();
-    const author = following.length > 0 ? following : "Denis Kuizinas";
-    const sampleText = "Just dropped a brand new note! Make sure to check it out in PDF mode.";
-    const notes = getNotes();
-    notes.unshift({
-    id: Date.now(),
-    author: author,
-    handle: userDirectory[author]?.handle || '@' + author.toLowerCase().replace(/\s+/g, ''),
-    time: "Just now",
-    isEliteContent: isUserElite(author),
-    isFullJsContent: hasFullJsPrivilege(author),
-    text: sampleText,
-    likes: 1,
-    liked: false,
-    replies: []
-    });
-    saveNotes(notes);
-    const notifs = getNotifications();
-    notifs.unshift({
-    id: Date.now(),
-    text: 🔔 ${author} just wrote a new note: "${sampleText.slice(0, 35)}...",
-    unread: true
-    });
-    saveNotifications(notifs);
-    renderNotes();
-    }
-    function renderComposer() {
-    const box = document.getElementById('composer-box');
-    if (!isLoggedIn) {
-    box.innerHTML = <p class="login-prompt"> Want to share a note, follow writers, or become <strong>notemakers</strong>? <a href="login.html">Log in or Sign up</a>! </p>;
-    return;
-    }
-    const existingDraft = document.getElementById('note-input')?.value || '';
-    const notemakers = getNotemakers();
-    const eliteActive = isUserElite(currentUser);
-    const fullJsActive = hasFullJsPrivilege(currentUser);
-    const collabOptions = notemakers.map(friend => <option value="${escapeAttr(friend)}">🤝 Collab with ${escapeHTML(friend)}</option>).join('');
-    let placeholderText = "Write a note (≤ 20 chars becomes a shortnote)...";
-    let textareaClass = "";
-    if (fullJsActive) {
-    placeholderText = "Owner / Permitted Full JS Mode active: Use unrestricted , HTML, CSS & Markdown!";
-    textareaClass = "fulljs-code-mode";
-    } else if (eliteActive) {
-    placeholderText = "Elite Mode active: Use Markdown (bold), HTML & CSS (limited safe JS)...";
-    textareaClass = "elite-code-mode";
-    }
-    box.innerHTML = `
-    
-    
-    Solo Note
-    ${collabOptions}
-    ${escapeHTML(existingDraft)}
-    Live Preview
-    
-    ${fullJsActive ? <button type="button" class="run-preview-js-btn" onclick="updateLivePreview(true)">▶ Run Preview JS</button> : ''}
-    
-    
-    
-    
-    0 / 1000
-    shortnote
-    
-    
-    
-    👁️ Live Preview
-    
-    Post Note
-    
-    
-    `;
-    handleComposerInput();
-    }
-    function toggleLivePreview() {
-    isLivePreviewOpen = !isLivePreviewOpen;
-    const previewBox = document.getElementById('live-preview-box');
-    const toggleBtn = document.getElementById('preview-toggle-btn');
-    if (previewBox) previewBox.classList.toggle('visible', isLivePreviewOpen);
-    if (toggleBtn) toggleBtn.classList.toggle('active', isLivePreviewOpen);
-    if (isLivePreviewOpen) {
-    updateLivePreview(true);
-    }
-    }
-    function handleComposerInput() {
-    const input = document.getElementById('note-input');
-    if (!input) return;
-    const len = input.value.trim().length;
-    document.getElementById('char-count').innerText = ${input.value.length} / 1000;
-    const badge = document.getElementById('composer-shortnote-badge');
-    badge.style.display = (len > 0 && len <= 20) ? 'inline-block' : 'none';
-    if (isLivePreviewOpen) {
-    updateLivePreview(false);
-    }
-    }
-    function updateLivePreview(runScripts = false) {
-    const input = document.getElementById('note-input');
-    const contentEl = document.getElementById('live-preview-content');
-    const modeLabel = document.getElementById('live-preview-mode-label');
-    const typeBadge = document.getElementById('live-preview-type-badge');
-    if (!input || !contentEl) return;
-    const rawText = input.value;
-    const trimmedLen = rawText.trim().length;
-    const fullJsActive = hasFullJsPrivilege(currentUser);
-    const eliteActive = isUserElite(currentUser);
-    if (fullJsActive) {
-    modeLabel.innerText = 'Live Preview (Owner / Full JS)';
-    } else if (eliteActive) {
-    modeLabel.innerText = 'Live Preview (Elite MD/HTML/CSS)';
-    } else {
-    modeLabel.innerText = 'Live Preview (Standard Note)';
-    }
-    if (trimmedLen === 0) {
-    typeBadge.innerHTML = '';
-    contentEl.className = 'live-preview-content plain-text';
-    contentEl.innerHTML = 'Start typing above to preview your note...';
-    return;
-    }
-    if (trimmedLen <= 20) {
-    typeBadge.innerHTML = 'shortnote (no PDF)';
-    } else {
-    typeBadge.innerHTML = '📄 Opens in PDF view';
-    }
-    if (eliteActive || fullJsActive) {
-    contentEl.className = 'live-preview-content';
-    contentEl.innerHTML = renderRichNote(rawText, fullJsActive);
-    if (fullJsActive && runScripts) {
-    executeEmbeddedScripts(contentEl);
-    }
-    } else {
-    contentEl.className = 'live-preview-content plain-text';
-    contentEl.innerText = rawText;
-    }
-    }
-    function toggleEliteStatus(checked) {
-    localStorage.setItem('isCurrentUserElite', checked ? 'true' : 'false');
-    if (!checked) {
-    localStorage.setItem('isCurrentUserFullJs', 'false');
-    localStorage.setItem('isCurrentUserOwner', 'false');
-    }
-    renderComposer();
-    renderNotes();
-    }
-    function toggleFullJsStatus(checked) {
-    localStorage.setItem('isCurrentUserFullJs', checked ? 'true' : 'false');
-    localStorage.setItem('isCurrentUserOwner', checked ? 'true' : 'false');
-    if (checked) {
-    localStorage.setItem('isCurrentUserElite', 'true');
-    }
-    renderComposer();
-    renderNotes();
-    }
+
     function getNotes() {
-    const saved = localStorage.getItem('lolNotes');
-    if (!saved) return starterNotes;
-    const parsed = JSON.parse(saved);
-    return parsed.map(n => ({ ...n, replies: n.replies || [] }));
+      const notes = readJSON(STORAGE_KEYS.notes, starterNotes);
+      if (!Array.isArray(notes)) return starterNotes;
+
+      return notes.map(note => ({
+        ...note,
+        replies: Array.isArray(note.replies) ? note.replies : [],
+        likes: Number.isFinite(note.likes) ? note.likes : 0
+      }));
     }
-    function saveNotes(notes) {
-    localStorage.setItem('lolNotes', JSON.stringify(notes));
+
+    function getNotifications() {
+      const notifications = readJSON(STORAGE_KEYS.notifications, []);
+      return Array.isArray(notifications) ? notifications : [];
     }
-    function postNote() {
-    const input = document.getElementById('note-input');
-    const text = input.value.trim();
-    if (!text) return;
-    const collabPartner = document.getElementById('collab-partner')?.value || '';
-    const fullJsActive = hasFullJsPrivilege(currentUser);
-    const eliteActive = isUserElite(currentUser);
-    const notes = getNotes();
-    const newNote = {
-    id: Date.now(),
-    author: currentUser,
-    collaborator: collabPartner,
-    handle: '@' + currentUser.toLowerCase().replace(/\s+/g, ''),
-    time: 'Just now',
-    isEliteContent: eliteActive,
-    isFullJsContent: fullJsActive,
-    text: text,
-    likes: 0,
-    liked: false,
-    replies: []
-    };
-    notes.unshift(newNote);
-    saveNotes(notes);
-    input.value = '';
-    handleComposerInput();
-    renderNotes();
+
+    function escapeHTML(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      })[character]);
     }
-    function sanitizeLimitedJs(html) {
-    const scriptPattern = new RegExp('<script\b[^<](?:(?!<\/script>)<[^<])*<\/script>', 'gi');
-    return html
-    .replace(scriptPattern, '[<script> blocked — Full JS requires Site Owner permission]')
-    .replace(/\b(localStorage|sessionStorage|document.cookie|eval|Function|fetch|XMLHttpRequest|window.location)\b/gi, '/restricted/');
+
+    // Only basic formatting is supported. Input is escaped before markup is added.
+    function formatNote(text) {
+      return escapeHTML(text)
+        .replace(/^### (.+)$/gm, "<h3>$1</h3>")
+        .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*(.+?)\*/g, "<em>$1</em>")
+        .replace(/`(.+?)`/g, "<code>$1</code>");
     }
-    function renderRichNote(rawText, allowFullJs) {
-    let formatted = rawText
-    .replace(/^### (.$)/gim, '$1')
-    .replace(/^## (.$)/gim, '$1')
-    .replace(/**(.?)**/g, '$1')
-    .replace(/*(.?)*/g, '$1')
-    .replace(/([^]+)`/g, '$1');
-    if (!allowFullJs) {
-    formatted = sanitizeLimitedJs(formatted);
+
+    function currentUsername() {
+      return localStorage.getItem(STORAGE_KEYS.username) || "";
     }
-    return formatted;
+
+    function renderNotifications() {
+      const notifications = getNotifications();
+      const unreadCount = notifications.filter(item => item.unread).length;
+
+      document.getElementById("notification-count").textContent = unreadCount;
+      document.getElementById("notification-list").innerHTML =
+        notifications.length === 0
+          ? '<p class="notification-item">No notifications yet.</p>'
+          : notifications.map(item => `
+              <div class="notification-item ${item.unread ? "unread" : ""}">
+                ${escapeHTML(item.text)}
+              </div>
+            `).join("");
     }
-    function executeEmbeddedScripts(container) {
-    const scripts = container.querySelectorAll('script');
-    scripts.forEach(oldScript => {
-    const newScript = document.createElement('script');
-    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-    newScript.textContent = oldScript.textContent;
-    oldScript.parentNode.replaceChild(newScript, oldScript);
-    });
-    }
-    function toggleFollow(authorName) {
-    if (!isLoggedIn) {
-    window.location.href = 'login.html';
-    return;
-    }
-    let following = getFollowing();
-    if (following.includes(authorName)) {
-    following = following.filter(u => u !== authorName);
-    } else {
-    following.push(authorName);
-    const notifs = getNotifications();
-    notifs.unshift({
-    id: Date.now(),
-    text: 🔔 You are now following ${authorName}. You'll get alerts when they write a note!,
-    unread: true
-    });
-    saveNotifications(notifs);
-    }
-    saveFollowing(following);
-    openUserProfile(authorName);
-    }
-    function requestNotemaker(authorName) {
-    if (!isLoggedIn) {
-    window.location.href = 'login.html';
-    return;
-    }
-    const notemakers = getNotemakers();
-    if (!notemakers.includes(authorName)) {
-    notemakers.push(authorName);
-    saveNotemakers(notemakers);
-    const notifs = getNotifications();
-    notifs.unshift({
-    id: Date.now(),
-    text: 🤝 You and ${authorName} are now Notemakers! You can see when they're online and collaborate on notes.,
-    unread: true
-    });
-    saveNotifications(notifs);
-    }
-    closeAllDotsMenus();
-    renderComposer();
-    renderNotes();
-    if (document.getElementById('profile-modal').classList.contains('open')) {
-    openUserProfile(authorName);
-    }
-    }
-    function toggleFullJsPermissionForUser(targetUser) {
-    if (!isUserOwner(currentUser)) {
-    alert("Only Site Owners can grant or revoke Full JS permissions.");
-    return;
-    }
-    let list = getFullJsPermittedUsers();
-    if (list.includes(targetUser)) {
-    list = list.filter(u => u !== targetUser);
-    } else {
-    list.push(targetUser);
-    const notifs = getNotifications();
-    notifs.unshift({
-    id: Date.now(),
-    text: 👑 Site Owner granted Full JS permissions to ${targetUser}!,
-    unread: true
-    });
-    saveNotifications(notifs);
-    }
-    saveFullJsPermittedUsers(list);
-    closeAllDotsMenus();
-    renderNotes();
-    if (document.getElementById('profile-modal').classList.contains('open')) {
-    openUserProfile(targetUser);
-    }
-    }
-    function toggleDotsMenu(e, menuId) {
-    e.stopPropagation();
-    const target = document.getElementById(menuId);
-    const wasOpen = target.classList.contains('open');
-    closeAllDotsMenus();
-    if (!wasOpen) target.classList.add('open');
-    }
-    function closeAllDotsMenus() {
-    document.querySelectorAll('.dots-menu').forEach(m => m.classList.remove('open'));
-    }
-    function toggleReplies(noteId) {
-    if (openReplyThreads.has(noteId)) {
-    openReplyThreads.delete(noteId);
-    } else {
-    openReplyThreads.add(noteId);
-    }
-    renderNotes();
-    }
-    function postReplyNote(e, noteId) {
-    e.preventDefault();
-    if (!isLoggedIn) {
-    window.location.href = 'login.html';
-    return;
-    }
-    const input = document.getElementById(reply-input-${noteId});
-    const text = input.value.trim();
-    if (!text) return;
-    const notes = getNotes();
-    const note = notes.find(n => n.id === noteId);
-    if (!note) return;
-    note.replies.push({
-    id: Date.now(),
-    author: currentUser,
-    handle: '@' + currentUser.toLowerCase().replace(/\s+/g, ''),
-    time: 'Just now',
-    text: text
-    });
-    openReplyThreads.add(noteId);
-    saveNotes(notes);
-    renderNotes();
-    }
-    function toggleLike(id) {
-    const notes = getNotes();
-    const note = notes.find(n => n.id === id);
-    if (!note) return;
-    note.liked = !note.liked;
-    note.likes += note.liked ? 1 : -1;
-    saveNotes(notes);
-    renderNotes();
-    }
-    function deleteNote(id) {
-    if (activePdfId === id) closePdfViewer();
-    const notes = getNotes().filter(n => n.id !== id);
-    saveNotes(notes);
-    renderNotes();
-    }
-    function openPdfNote(id, isReply = false, parentId = null) {
-    const notes = getNotes();
-    let item = null;
-    if (!isReply) {
-    item = notes.find(n => n.id === id);
-    } else {
-    const parent = notes.find(n => n.id === parentId);
-    item = parent ? parent.replies.find(r => r.id === id) : null;
-    }
-    if (!item || item.text.length <= 20) return;
-    activePdfId = item.id;
-    activePdfAuthor = item.author;
-    const authorTitle = item.collaborator ? ${item.author} & ${item.collaborator} : item.author;
-    document.getElementById('pdf-doc-type').innerText = isReply ? 'Reply_Note.pdf' : 'Note_Document.pdf';
-    document.getElementById('pdf-author').innerText = authorTitle;
-    document.getElementById('pdf-handle').innerText = item.handle;
-    document.getElementById('pdf-time').innerText = item.time;
-    const bodyEl = document.getElementById('pdf-body');
-    const allowFullJs = item.isFullJsContent || hasFullJsPrivilege(item.author);
-    const allowElite = item.isEliteContent || isUserElite(item.author);
-    if (allowElite || allowFullJs) {
-    bodyEl.classList.add('elite-rendered');
-    bodyEl.innerHTML = renderRichNote(item.text, allowFullJs);
-    if (allowFullJs) executeEmbeddedScripts(bodyEl);
-    } else {
-    bodyEl.classList.remove('elite-rendered');
-    bodyEl.innerText = item.text;
-    }
-    document.getElementById('pdf-char-count').innerText = ${item.text.length} characters;
-    document.getElementById('workspace').classList.add('pdf-mode');
-    renderNotes();
-    }
-    function closePdfViewer() {
-    activePdfId = null;
-    document.getElementById('workspace').classList.remove('pdf-mode');
-    renderNotes();
-    }
-    function openProfileFromPdf() {
-    if (activePdfAuthor) openUserProfile(activePdfAuthor);
-    }
-    function openUserProfile(authorName) {
-    const notes = getNotes();
-    const userNotes = notes.filter(n => n.author === authorName || n.collaborator === authorName);
-    const info = userDirectory[authorName] || {};
-    const handle = info.handle || ('@' + authorName.toLowerCase().replace(/\s+/g, ''));
-    const owner = isUserOwner(authorName);
-    const fullJs = hasFullJsPrivilege(authorName);
-    const elite = isUserElite(authorName);
-    const isFriend = getNotemakers().includes(authorName);
-    const isFollowing = getFollowing().includes(authorName);
-    const online = isUserOnline(authorName);
-    let bio = info.bio || 'Sharing notes and shortnotes on The lol project.';
-    if (authorName === currentUser && localStorage.getItem('userBio')) {
-    bio = localStorage.getItem('userBio');
-    }
-    document.getElementById('modal-avatar').innerText = authorName.charAt(0).toUpperCase();
-    document.getElementById('modal-name').innerText = authorName;
-    document.getElementById('modal-handle').innerText = handle + (isFriend ? (online ? ' • 🟢 Online' : ' • ⚪ Offline') : '');
-    let badgesHTML = '';
-    if (owner) {
-    badgesHTML += <span class="owner-badge">👑 Site Owner</span> ;
-    } else if (fullJs) {
-    badgesHTML += <span class="owner-badge">👑 Full JS Permitted</span> ;
-    }
-    if (elite) {
-    badgesHTML += <span class="elite-badge" title="${escapeAttr(info.eliteReason || 'Verified Elite Notemaker')}">⭐ Elite Notemaker</span>;
-    }
-    document.getElementById('modal-badges').innerHTML = badgesHTML;
-    const actionBar = document.getElementById('modal-action-bar');
-    if (authorName === currentUser) {
-    actionBar.innerHTML = <span style="font-size:0.85rem; color:#6b7280;">This is your public profile view.</span>;
-    } else {
-    const ownerControls = isUserOwner(currentUser) && !owner ? <button type="button" class="permit-js-btn" onclick="toggleFullJsPermissionForUser('${escapeAttr(authorName)}')"> ${fullJs ? '👑 Revoke Full JS' : '👑 Grant Full JS'} </button> : '';
-    actionBar.innerHTML = <button type="button" class="follow-btn ${isFollowing ? 'following' : ''}" onclick="toggleFollow('${escapeAttr(authorName)}')"> ${isFollowing ? '🔔 Following' : '+ Follow'} </button> <button type="button" class="notemaker-btn" onclick="requestNotemaker('${escapeAttr(authorName)}')"> ${isFriend ? '🤝 Notemakers (Friends)' : '➕ Ask to be Notemakers'} </button> ${ownerControls};
-    }
-    document.getElementById('modal-bio').innerText = bio;
-    document.getElementById('modal-notes-heading').innerText = Notes by ${authorName} (${userNotes.length});
-    const list = document.getElementById('modal-notes-list');
-    list.innerHTML = '';
-    if (userNotes.length === 0) {
-    list.innerHTML = 'No public notes yet.';
-    } else {
-    userNotes.forEach(n => {
-    const isShort = n.text.length <= 20;
-    const allowFull = n.isFullJsContent || fullJs;
-    const allowEl = n.isEliteContent || elite;
-    const div = document.createElement('div');
-    div.className = 'profile-note-mini';
-    div.innerHTML = <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:0.8rem; color:#6b7280;"> <span>${n.time}</span> ${isShort ? '<span class="shortnote-tag">shortnote</span>' : '<span>📄 PDF Note</span>'} </div> <div>${(allowEl || allowFull) ? renderRichNote(n.text, allowFull) : escapeHTML(n.text)}</div>;
-    list.appendChild(div);
-    if (allowFull) executeEmbeddedScripts(div);
-    });
-    }
-    document.getElementById('profile-modal').classList.add('open');
-    }
-    function closeProfileModal(e) {
-    if (!e || e.target.id === 'profile-modal') {
-    document.getElementById('profile-modal').classList.remove('open');
-    }
-    }
+
     function renderNotes() {
-    const feed = document.getElementById('notes-feed');
-    const notes = getNotes();
-    const notemakers = getNotemakers();
-    feed.innerHTML = '';
-    notes.forEach(note => {
-    const isOwner = isLoggedIn && note.author === currentUser;
-    const isShortnote = note.text.length <= 20;
-    const isRepliesOpen = openReplyThreads.has(note.id);
-    const authorIsOwner = isUserOwner(note.author);
-    const allowFullJs = note.isFullJsContent || hasFullJsPrivilege(note.author);
-    const elite = note.isEliteContent || isUserElite(note.author);
-    const isFriend = notemakers.includes(note.author);
-    const online = isUserOnline(note.author);
-    const repliesHTML = note.replies.map(r => {
-    const isShortReply = r.text.length <= 20;
-    return <div class="reply-item"> <div class="reply-header"> <span class="reply-author" onclick="openUserProfile('${escapeAttr(r.author)}')">${escapeHTML(r.author)} <span style="font-weight:400; color:#6b7280;">${escapeHTML(r.handle)}</span></span> <div style="display:flex; align-items:center; gap:6px;"> ${isShortReply ? '<span class="shortnote-tag">shortnote</span>' : ''} <span style="color:#9ca3af; font-size:0.78rem;">${r.time}</span> </div> </div> <div class="reply-text ${!isShortReply ? 'pdf-clickable' : ''}"  ${!isShortReply ?onclick="openPdfNote(r.id, true, {note.id})" title="Click to open reply note in PDF view": ''}> ${escapeHTML(r.text)} </div> </div>;
-    }).join('');
-    let badges = '';
-    if (authorIsOwner) {
-    badges += '👑 Owner';
-    } else if (allowFullJs) {
-    badges += '👑 Full JS';
-    } else if (elite) {
-    badges += '⭐ Elite';
+      const feed = document.getElementById("notes-feed");
+      const notes = getNotes();
+
+      if (notes.length === 0) {
+        feed.innerHTML = '<p class="muted">No notes yet.</p>';
+        return;
+      }
+
+      feed.innerHTML = notes.map(note => {
+        const replies = note.replies.map(reply => `
+          <div class="reply-item">
+            <div class="reply-header">
+              <strong>${escapeHTML(reply.author)}</strong>
+              <span class="note-time">${escapeHTML(reply.time)}</span>
+            </div>
+            <div class="note-body">${escapeHTML(reply.text)}</div>
+          </div>
+        `).join("");
+
+        return `
+          <article class="note-card" data-note-id="${Number(note.id)}">
+            <div class="note-header">
+              <strong class="note-author">${escapeHTML(note.author)}</strong>
+              <span class="note-time">${escapeHTML(note.time)}</span>
+            </div>
+            <div class="note-body">${formatNote(note.text)}</div>
+            <div class="note-actions">
+              <button class="text-button ${note.liked ? "liked" : ""}"
+                      type="button" data-action="like" data-id="${Number(note.id)}">
+                ${note.liked ? "❤️" : "🤍"} ${Number(note.likes)}
+              </button>
+              <button class="text-button" type="button"
+                      data-action="pdf" data-id="${Number(note.id)}">
+                📄 Open reader
+              </button>
+              <span class="muted">${note.replies.length} replies</span>
+            </div>
+            <div class="reply-list">
+              ${replies}
+              <form class="reply-form" data-note-id="${Number(note.id)}">
+                <input name="reply" type="text" maxlength="280"
+                       aria-label="Reply to ${escapeHTML(note.author)}"
+                       placeholder="Write a reply..." required>
+                <button type="submit">Reply</button>
+              </form>
+            </div>
+          </article>
+        `;
+      }).join("");
     }
-    const ownerGrantOption = (isUserOwner(currentUser) && !isOwner && !authorIsOwner) ? <button type="button" onclick="toggleFullJsPermissionForUser('${escapeAttr(note.author)}')"> ${allowFullJs ? '👑 Revoke Full JS Access' : '👑 Permit Full JS Access'} </button> : '';
-    const card = document.createElement('article');
-    card.className = 'note-card' + (activePdfId === note.id ? ' active-pdf' : '');
-    card.innerHTML = <div class="note-header"> <div class="note-author-info" onclick="openUserProfile('escapeAttr(note.author)')" title="View {escapeAttr(note.author)}'s profile"> <div class="avatar-wrap"> <div class="note-avatar">\({note.author.charAt(0).toUpperCase()}</div>\){(isFriend || isOwner) ?: ''} </div> <div> <div class="author-name-line"> <span class="note-author">escapeHTML(note.author){note.collaborator ? & ${escapeHTML(note.collaborator)}` : ''}
-    \(badges\){isFriend && !isOwner ? '🤝 Notemaker' : ''}
-    
-    ${escapeHTML(note.handle)}
-    
-    ${isShortnote ? 'shortnote' : ''}
-    ${note.time}
-    ⋮
-    
-    👤 View Profile
-    ${!isOwner ? <button type="button" onclick="requestNotemaker('${escapeAttr(note.author)}')"> ${isFriend ? '🤝 Already Notemakers' : '➕ Ask to be Notemakers'} </button> : ''}
-    \(ownerGrantOption\){!isShortnote ? <button type="button" onclick="openPdfNote(${note.id})">📄 Open in PDF Style</button> : ''}
-    
-    
-    <div class="note-body (elite || allowFullJs) ? 'elite-rendered' : '' {!isShortnote ? 'pdf-clickable' : ''}"
-    {!isShortnote ? `onclick="openPdfNote(${note.id})" title="Click to open in PDF view"` : ''}>{(elite || allowFullJs) ? renderRichNote(note.text, allowFullJs) : escapeHTML(note.text)}
-    note.liked ? '❤️' : '🤍' {note.likes}
-    
-    
-    💬 Reply Notes (${note.replies.length})
-    
-    ${!isShortnote ? <button type="button" class="action-btn" onclick="openPdfNote(${note.id})">📄 PDF View</button> : ''}
-    ${isOwner ? <button type="button" class="action-btn delete" onclick="deleteNote(${note.id})">🗑️ Delete</button> : ''}
-    ${repliesHTML}
-    
-    <input type="text" id="reply-input-${note.id}" maxlength="280" placeholder="isLoggedIn ? 'Write a reply note...' : 'Log in to write a reply note...'" {!isLoggedIn ? 'disabled' : ''}>
-    ${isLoggedIn ? 'Reply' : 'Log In'}
-    
-    
-    `;
-    feed.appendChild(card);
-    if (allowFullJs) {
-    executeEmbeddedScripts(card);
+
+    function openPdf(note) {
+      document.getElementById("pdf-author").textContent = note.author;
+      document.getElementById("pdf-time").textContent = note.time;
+      document.getElementById("pdf-content").textContent = note.text;
+      document.getElementById("workspace").classList.add("pdf-mode");
     }
+
+    function postNote() {
+      const username = currentUsername();
+      if (!username) {
+        document.getElementById("login-prompt").hidden = false;
+        return;
+      }
+
+      const input = document.getElementById("note-input");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const notes = getNotes();
+      notes.unshift({
+        id: Date.now(),
+        author: username,
+        time: "Just now",
+        text,
+        likes: 0,
+        liked: false,
+        replies: []
+      });
+
+      saveJSON(STORAGE_KEYS.notes, notes);
+      input.value = "";
+      document.getElementById("char-count").textContent = "0";
+      renderNotes();
+    }
+
+    document.getElementById("note-input").addEventListener("input", event => {
+      document.getElementById("char-count").textContent =
+        event.currentTarget.value.length;
     });
-    }
-    function escapeHTML(str) {
-    return str.replace(/[&<>'"]/g, tag => ({
-    '&': '&',
-    '<': '<',
-    '>': '>',
-    "'": ''',
-    '"': '"'
-    }[tag]));
-    }
-    function escapeAttr(str) {
-    return str.replace(/'/g, "\'").replace(/"/g, '"');
-    }
-    function handleNavClick(e) {
-    if (e) e.stopPropagation();
-    document.getElementById('notif-dropdown').style.display = 'none';
-    if (!isLoggedIn) {
-    window.location.href = "login.html";
-    } else {
-    const dropdown = document.getElementById('account-dropdown');
-    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-    }
-    }
-    function logoutUser(e) {
-    e.preventDefault();
-    localStorage.setItem('loggedIn', 'false');
-    window.location.reload();
-    }
-    window.addEventListener('click', (e) => {
-    const navButton = document.getElementById('dynamic-user-nav');
-    const dropdown = document.getElementById('account-dropdown');
-    const notifBtn = document.getElementById('notif-bell-btn');
-    const notifMenu = document.getElementById('notif-dropdown');
-    if (navButton && dropdown && !navButton.contains(e.target)) {
-    dropdown.style.display = 'none';
-    }
-    if (notifBtn && notifMenu && !notifBtn.contains(e.target) && !notifMenu.contains(e.target)) {
-    notifMenu.style.display = 'none';
-    }
-    if (!e.target.closest('.dots-btn') && !e.target.closest('.dots-menu')) {
-    closeAllDotsMenus();
-    }
+
+    document.getElementById("post-button").addEventListener("click", postNote);
+
+    document.getElementById("login-button").addEventListener("click", () => {
+      const existingName = currentUsername();
+      const name = window.prompt("Enter a username:", existingName || "");
+      if (name === null) return;
+
+      const username = name.trim();
+      if (!username) {
+        localStorage.removeItem(STORAGE_KEYS.username);
+        document.getElementById("login-button").textContent = "Log in";
+        document.getElementById("login-prompt").hidden = false;
+        return;
+      }
+
+      localStorage.setItem(STORAGE_KEYS.username, username);
+      document.getElementById("login-button").textContent = username;
+      document.getElementById("login-prompt").hidden = true;
     });
+
+    document.getElementById("notes-feed").addEventListener("click", event => {
+      const button = event.target.closest("button[data-action]");
+      if (!button) return;
+
+      const id = Number(button.dataset.id);
+      const notes = getNotes();
+      const note = notes.find(item => item.id === id);
+      if (!note) return;
+
+      if (button.dataset.action === "pdf") {
+        openPdf(note);
+      } else if (button.dataset.action === "like") {
+        note.liked = !note.liked;
+        note.likes = Math.max(0, note.likes + (note.liked ? 1 : -1));
+        saveJSON(STORAGE_KEYS.notes, notes);
+        renderNotes();
+      }
+    });
+
+    document.getElementById("notes-feed").addEventListener("submit", event => {
+      const form = event.target.closest(".reply-form");
+      if (!form) return;
+
+      event.preventDefault();
+
+      const username = currentUsername();
+      if (!username) {
+        document.getElementById("login-prompt").hidden = false;
+        return;
+      }
+
+      const noteId = Number(form.dataset.noteId);
+      const input = form.elements.reply;
+      const text = input.value.trim();
+      if (!text) return;
+
+      const notes = getNotes();
+      const note = notes.find(item => item.id === noteId);
+      if (!note) return;
+
+      note.replies.push({
+        id: Date.now(),
+        author: username,
+        time: "Just now",
+        text
+      });
+
+      saveJSON(STORAGE_KEYS.notes, notes);
+      renderNotes();
+    });
+
+    document.getElementById("notification-button").addEventListener("click", () => {
+      const menu = document.getElementById("notification-menu");
+      const isOpen = menu.classList.toggle("open");
+      document.getElementById("notification-button")
+        .setAttribute("aria-expanded", String(isOpen));
+    });
+
+    document.getElementById("mark-read-button").addEventListener("click", () => {
+      const notifications = getNotifications().map(item => ({
+        ...item,
+        unread: false
+      }));
+      saveJSON(STORAGE_KEYS.notifications, notifications);
+      renderNotifications();
+    });
+
+    document.getElementById("close-pdf-button").addEventListener("click", () => {
+      document.getElementById("workspace").classList.remove("pdf-mode");
+    });
+
+    document.addEventListener("click", event => {
+      const menu = document.getElementById("notification-menu");
+      const button = document.getElementById("notification-button");
+
+      if (!menu.contains(event.target) && !button.contains(event.target)) {
+        menu.classList.remove("open");
+        button.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    const username = currentUsername();
+    if (username) {
+      document.getElementById("login-button").textContent = username;
+      document.getElementById("login-prompt").hidden = true;
+    }
+
+    renderNotifications();
+    renderNotes();
+  </script>
+</body>
+</html>
+```
+
+### Main problems fixed
+
+- Replaced the missing/malformed body markup with valid, semantic HTML and added the elements referenced by the JavaScript.
+- Removed the accidental `Use code with caution.` text from the CSS and restored valid style rules.
+- Fixed broken JavaScript template literals, object values, string concatenation, selectors, and malformed regular expressions by replacing the corrupted script with valid handlers.
+- Corrected the followed-author bug: the original code assigned an array of followed users to `author`, rather than selecting a single author.
+- Added defensive `localStorage` parsing so missing or invalid stored JSON does not stop the page from loading.
+- Escaped user-provided text before rendering it as HTML. The original code executed scripts from notes in the main page, which could expose the user’s data and alter the page. This version does **not** run user-supplied JavaScript or HTML; it supports only escaped text and basic formatting.
+- Added responsive layout, accessible labels, notification state, character counting, and working note, reply, like, and reader interactions.
