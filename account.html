@@ -1,754 +1,1203 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Account - The lol project</title>
-    <style>
-        * {
-          box-sizing: border-box;
-          margin: 0;
-          padding: 0;
-        }
-    
-        body {
-          font-family: system-ui, -apple-system, sans-serif;
-          background-color: #f0f8ff;
-          color: #1f2937;
-          line-height: 1.6;
-          min-height: 100vh;
-          padding: 24px 20px 48px 20px;
-        }
-    
-        #lollogo {
-          text-align: center;
-          margin-bottom: 20px;
-        }
-    
-        #lollogo img {
-          height: 120px;
-          max-width: 100%;
-          width: auto;
-          display: inline-block;
-        }
-    
-        .header-nav-container {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          max-width: 820px;
-          margin: 0 auto 24px auto;
-        }
-    
-        .home-link {
-          color: #2563eb;
-          text-decoration: none;
-          font-weight: 600;
-          font-size: 0.95rem;
-        }
-    
-        .home-link:hover {
-          text-decoration: underline;
-        }
-    
-        .nav-wrapper {
-          position: relative;
-        }
-    
-        .profile-link-btn {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #1f2937;
-          font-weight: 600;
-          font-size: 0.95rem;
-          cursor: pointer;
-          border: 1px solid #d1d5db;
-          padding: 8px 16px;
-          border-radius: 9999px;
-          background: #ffffff;
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-          transition: all 0.2s ease;
-        }
-    
-        .profile-link-btn:hover {
-          background: #f9fafb;
-          border-color: #9ca3af;
-        }
-    
-        .profile-icon {
-          width: 20px;
-          height: 20px;
-          fill: none;
-          stroke: currentColor;
-          stroke-width: 2;
-        }
-    
-        .nav-dropdown-menu {
-          display: none;
-          position: absolute;
-          top: calc(100% + 8px);
-          right: 0;
-          background: #ffffff;
-          border: 1px solid #e5e7eb;
-          border-radius: 10px;
-          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-          width: 215px;
-          z-index: 100;
-          overflow: hidden;
-        }
-    
-        .nav-dropdown-menu a {
-          display: block;
-          padding: 10px 16px;
-          text-decoration: none;
-          color: #374151;
-          font-size: 0.95rem;
-          border-bottom: 1px solid #f3f4f6;
-          transition: background 0.15s ease;
-        }
-    
-        .nav-dropdown-menu a:last-child {
-          border-bottom: none;
-        }
-    
-        .nav-dropdown-menu a:hover {
-          background: #f3f4f6;
-        }
-    
-        .nav-dropdown-menu a.logout-link {
-          color: #dc2626;
-          font-weight: 500;
-        }
-    
-        .account-container {
-          max-width: 820px;
-          margin: 0 auto;
-          background: #ffffff;
-          border-radius: 16px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-          overflow: hidden;
-        }
-    
-        .account-header {
-          padding: 28px 32px;
-          border-bottom: 1px solid #e5e7eb;
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-    
-        .avatar-circle {
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          background: #dbeafe;
-          color: #1d4ed8;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.5rem;
-          font-weight: 700;
-          flex-shrink: 0;
-        }
-    
-        .header-name-row {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          flex-wrap: wrap;
-        }
-    
-        .account-header h1 {
-          font-size: 1.5rem;
-          color: #111827;
-        }
-    
-        .account-header p {
-          color: #6b7280;
-          font-size: 0.95rem;
-        }
-    
-        .elite-badge {
-          background: linear-gradient(135deg, #7c3aed, #2563eb);
-          color: #ffffff;
-          font-size: 0.78rem;
-          font-weight: 700;
-          padding: 3px 10px;
-          border-radius: 9999px;
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-        }
-    
-        .owner-badge {
-          background: linear-gradient(135deg, #f59e0b, #d97706);
-          color: #ffffff;
-          font-size: 0.78rem;
-          font-weight: 700;
-          padding: 3px 10px;
-          border-radius: 9999px;
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-        }
-    
-        .tabs {
-          display: flex;
-          background: #f9fafb;
-          border-bottom: 1px solid #e5e7eb;
-          overflow-x: auto;
-        }
-    
-        .tab-btn {
-          flex: 1;
-          padding: 14px 12px;
-          background: none;
-          border: none;
-          border-bottom: 3px solid transparent;
-          font-size: 0.9rem;
-          font-weight: 600;
-          color: #4b5563;
-          cursor: pointer;
-          white-space: nowrap;
-          transition: all 0.2s;
-        }
-    
-        .tab-btn:hover {
-          color: #111827;
-          background: #f3f4f6;
-        }
-    
-        .tab-btn.active {
-          color: #2563eb;
-          border-bottom-color: #2563eb;
-          background: #ffffff;
-        }
-    
-        .tab-btn.elite-tab.active {
-          color: #7c3aed;
-          border-bottom-color: #7c3aed;
-        }
-    
-        .tab-btn.owner-tab.active {
-          color: #d97706;
-          border-bottom-color: #d97706;
-        }
-    
-        .tab-content {
-          display: none;
-          padding: 32px;
-        }
-    
-        .tab-content.active {
-          display: block;
-        }
-    
-        .form-group {
-          margin-bottom: 18px;
-        }
-    
-        label {
-          display: block;
-          font-size: 0.9rem;
-          font-weight: 600;
-          margin-bottom: 6px;
-          color: #374151;
-        }
-    
-        input[type="text"],
-        input[type="password"],
-        input[type="url"],
-        input[type="number"],
-        select,
-        textarea {
-          width: 100%;
-          padding: 10px 14px;
-          border: 1px solid #d1d5db;
-          border-radius: 8px;
-          font-family: inherit;
-          font-size: 0.95rem;
-          background: #ffffff;
-        }
-    
-        input:focus,
-        select:focus,
-        textarea:focus {
-          outline: none;
-          border-color: #2563eb;
-          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-        }
-    
-        .btn-primary {
-          padding: 10px 20px;
-          background-color: #2563eb;
-          color: #ffffff;
-          border: none;
-          border-radius: 8px;
-          font-size: 0.95rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background-color 0.2s;
-        }
-    
-        .btn-primary:hover {
-          background-color: #1d4ed8;
-        }
-    
-        .btn-elite {
-          padding: 11px 22px;
-          background: linear-gradient(135deg, #7c3aed, #2563eb);
-          color: #ffffff;
-          border: none;
-          border-radius: 8px;
-          font-size: 0.95rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: opacity 0.2s;
-        }
-    
-        .btn-elite:hover {
-          opacity: 0.92;
-        }
-    
-        .btn-owner {
-          padding: 10px 20px;
-          background: linear-gradient(135deg, #f59e0b, #d97706);
-          color: #ffffff;
-          border: none;
-          border-radius: 8px;
-          font-size: 0.95rem;
-          font-weight: 600;
-          cursor: pointer;
-        }
-    
-        .btn-secondary {
-          padding: 9px 16px;
-          background: #f3f4f6;
-          color: #374151;
-          border: 1px solid #d1d5db;
-          border-radius: 8px;
-          font-size: 0.88rem;
-          font-weight: 600;
-          cursor: pointer;
-        }
-    
-        .btn-secondary:hover {
-          background: #e5e7eb;
-        }
-    
-        .checkbox-row {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 14px;
-          font-size: 0.95rem;
-          color: #374151;
-        }
-    
-        .doc-input-row {
-          display: flex;
-          gap: 10px;
-          margin-bottom: 20px;
-        }
-    
-        .doc-list {
-          list-style: none;
-        }
-    
-        .doc-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 12px 16px;
-          border: 1px solid #e5e7eb;
-          border-radius: 8px;
-          margin-bottom: 10px;
-          background: #f9fafb;
-        }
-    
-        .delete-doc-btn {
-          background: none;
-          border: none;
-          color: #dc2626;
-          font-size: 0.85rem;
-          font-weight: 600;
-          cursor: pointer;
-        }
-    
-        .delete-doc-btn:hover {
-          text-decoration: underline;
-        }
-    
-        .status-msg {
-          display: inline-block;
-          margin-left: 12px;
-          font-size: 0.9rem;
-          color: #059669;
-          font-weight: 500;
-        }
-    
-        .elite-info-box {
-          background: linear-gradient(135deg, #f5f3ff, #eff6ff);
-          border: 1px solid #ddd6fe;
-          border-radius: 12px;
-          padding: 18px 20px;
-          margin-bottom: 22px;
-        }
-    
-        .elite-info-box h2 {
-          font-size: 1.15rem;
-          color: #4c1d95;
-          margin-bottom: 8px;
-        }
-    
-        .elite-info-box ul {
-          margin-left: 20px;
-          color: #374151;
-          font-size: 0.92rem;
-        }
-    
-        .elite-info-box li {
-          margin-bottom: 4px;
-        }
-    
-        .owner-info-box {
-          background: #fffbeb;
-          border: 1px solid #fde68a;
-          border-radius: 12px;
-          padding: 18px 20px;
-          margin-bottom: 22px;
-        }
-    
-        .owner-info-box h2 {
-          font-size: 1.15rem;
-          color: #92400e;
-          margin-bottom: 6px;
-        }
-    
-        .application-status-card {
-          background: #fefce8;
-          border: 1px solid #fde047;
-          border-radius: 12px;
-          padding: 20px;
-          margin-bottom: 20px;
-        }
-    
-        .application-status-card.approved {
-          background: #f0fdf4;
-          border-color: #86efac;
-        }
-    
-        .status-pill {
-          display: inline-block;
-          font-size: 0.78rem;
-          font-weight: 700;
-          padding: 3px 10px;
-          border-radius: 9999px;
-          margin-bottom: 8px;
-        }
-    
-        .status-pill.pending {
-          background: #fef08a;
-          color: #854d0e;
-        }
-    
-        .status-pill.approved {
-          background: #bbf7d0;
-          color: #166534;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account - The lol project</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      padding: 24px 20px 48px;
+      background: #f0f8ff;
+      color: #1f2937;
+      font-family: system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+    }
+
+    a {
+      color: #2563eb;
+    }
+
+    #lollogo {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    #lollogo img {
+      display: inline-block;
+      width: auto;
+      max-width: 100%;
+      height: 120px;
+    }
+
+    .header-nav-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 820px;
+      margin: 0 auto 24px;
+    }
+
+    .home-link {
+      color: #2563eb;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .home-link:hover {
+      text-decoration: underline;
+    }
+
+    .nav-wrapper {
+      position: relative;
+    }
+
+    .profile-link-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 9999px;
+      background: #fff;
+      color: #1f2937;
+      box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .profile-link-btn:hover {
+      border-color: #9ca3af;
+      background: #f9fafb;
+    }
+
+    .profile-icon {
+      width: 20px;
+      height: 20px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+    }
+
+    .nav-dropdown-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      z-index: 100;
+      display: none;
+      width: 215px;
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 10%);
+    }
+
+    .nav-dropdown-menu a {
+      display: block;
+      padding: 10px 16px;
+      border-bottom: 1px solid #f3f4f6;
+      color: #374151;
+      font-size: 0.95rem;
+      text-decoration: none;
+    }
+
+    .nav-dropdown-menu a:last-child {
+      border-bottom: 0;
+    }
+
+    .nav-dropdown-menu a:hover {
+      background: #f3f4f6;
+    }
+
+    .nav-dropdown-menu .logout-link {
+      color: #dc2626;
+      font-weight: 500;
+    }
+
+    .account-container {
+      max-width: 820px;
+      margin: 0 auto;
+      overflow: hidden;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 4px 20px rgb(0 0 0 / 6%);
+    }
+
+    .account-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 28px 32px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .avatar-circle {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .header-name-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .account-header h1 {
+      color: #111827;
+      font-size: 1.5rem;
+    }
+
+    .account-header p {
+      color: #6b7280;
+      font-size: 0.95rem;
+    }
+
+    .badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .elite-badge,
+    .owner-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      color: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .elite-badge {
+      background: linear-gradient(135deg, #7c3aed
+1000
+, #2563eb);
+    }
+
+    .owner-badge {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    .tabs {
+      display: flex;
+      overflow-x: auto;
+      border-bottom: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 14px 12px;
+      border: 0;
+      border-bottom: 3px solid transparent;
+      background: none;
+      color: #4b5563;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    .tab-btn.active {
+      border-bottom-color: #2563eb;
+      background: #fff;
+      color: #2563eb;
+    }
+
+    .tab-btn.elite-tab.active {
+      border-bottom-color: #7c3aed;
+      color: #7c3aed;
+    }
+
+    .tab-btn.owner-tab.active {
+      border-bottom-color: #d97706;
+      color: #d97706;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 32px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: #374151;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="url"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      background: #fff;
+      font: inherit;
+      font-size: 0.95rem;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus,
+    button:focus-visible,
+    a:focus-visible {
+      outline: 3px solid rgb(37 99 235 / 20%);
+      outline-offset: 2px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #2563eb;
+    }
+
+    .btn-primary,
+    .btn-elite,
+    .btn-owner,
+    .btn-secondary {
+      padding: 10px 20px;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-elite {
+      background: linear-gradient(135deg, #7c3aed, #2563eb);
+      color: #fff;
+    }
+
+    .btn-elite:hover {
+      opacity: 0.92;
+    }
+
+    .btn-owner {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      padding: 9px 16px;
+      border: 1px solid #d1d5db;
+      background: #f3f4f6;
+      color: #374151;
+      font-size: 0.88rem;
+    }
+
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 14px;
+      color: #374151;
+      font-size: 0.95rem;
+    }
+
+    .checkbox-row input {
+      margin-top: 5px;
+    }
+
+    .doc-input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .doc-list {
+      list-style: none;
+    }
+
+    .doc-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      padding: 12px 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #f9fafb;
+      overflow-wrap: anywhere;
+    }
+
+    .delete-doc-btn {
+      flex-shrink: 0;
+      border: 0;
+      background: none;
+      color: #dc2626;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .delete-doc-btn:hover {
+      text-decoration: underline;
+    }
+
+    .status-msg {
+      display: inline-block;
+      margin-left: 12px;
+      color: #059669;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .info-box {
+      margin-bottom: 22px;
+      padding: 18px 20px;
+      border-radius: 12px;
+    }
+
+    .elite-info-box {
+      border: 1px solid #ddd6fe;
+      background: linear-gradient(135deg, #f5f3ff, #eff6ff);
+    }
+
+    .elite-info-box h2 {
+      margin-bottom: 8p
+1000
+x;
+      color: #4c1d95;
+      font-size: 1.15rem;
+    }
+
+    .elite-info-box ul {
+      margin-left: 20px;
+      color: #374151;
+      font-size: 0.92rem;
+    }
+
+    .elite-info-box li {
+      margin-bottom: 4px;
+    }
+
+    .owner-info-box {
+      border: 1px solid #fde68a;
+      background: #fffbeb;
+    }
+
+    .owner-info-box h2 {
+      margin-bottom: 6px;
+      color: #92400e;
+      font-size: 1.15rem;
+    }
+
+    .application-status-card {
+      margin-bottom: 20px;
+      padding: 20px;
+      border: 1px solid #fde047;
+      border-radius: 12px;
+      background: #fefce8;
+    }
+
+    .application-status-card.approved {
+      border-color: #86efac;
+      background: #f0fdf4;
+    }
+
+    .status-pill {
+      display: inline-block;
+      margin-bottom: 8px;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .status-pill.pending {
+      background: #fef08a;
+      color: #854d0e;
+    }
+
+    .status-pill.approved {
+      background: #bbf7d0;
+      color: #166534;
+    }
+
+    .small-note {
+      margin-top: 8px;
+      color: #6b7280;
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 16px 12px 32px;
+      }
+
+      .account-header,
+      .tab-content {
+        padding: 22px 18px;
+      }
+
+      .tab-btn {
+        flex: 0 0 auto;
+      }
+
+      .doc-input-row {
+        flex-direction: column;
+      }
+
+      .status-msg {
+        display: block;
+        margin: 8px 0 0;
+      }
+    }
+  </style>
 </head>
 
 <body>
+  <div id="lollogo">
+    <a href="index.html">
+      <img src="lollogo.png" alt="The lol project logo">
+    </a>
+  </div>
 
-    <div id="lollogo">
-        <a href="index.html">
-            <img src="lollogo.png" alt="Lol Project Logo">
-        </a>
+  <header class="header-nav-container">
+    <a href="index.html" class="home-link">← Back to Feed</a>
+
+    <div class="nav-wrapper">
+      <button
+        type="button"
+        class="profile-link-btn"
+        id="dynamic-user-nav"
+        aria-expanded="false"
+        aria-controls="account-dropdown"
+      >
+        <svg class="profile-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="8" r="4"></circle>
+          <path d="M4 21c.7-4 3.4-6 8-6s7.3 2 8 6"></path>
+        </svg>
+        <span id="nav-button-text">My Account</span>
+      </button>
+
+      <nav class="nav-dropdown-menu" id="account-dropdown" aria-label="Account navigation">
+        <a href="#profile" data-tab-link="profile">👤 Profile</a>
+        <a href="#settings" data-tab-link="settings">⚙️ Settings</a>
+        <a href="#drafts" data-tab-link="drafts">📁 Saved Drafts</a>
+        <a href="#elite" data-tab-link="elite">⭐ Elite Verification</a>
+        <a href="#owner" data-tab-link="owner">👑 Owner Permissions</a>
+        <a href="index.html" class="logout-link" id="logout-link">🚪 Log Out</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="account-container">
+    <section class="account-header" aria-label="Account summary">
+      <div class="avatar-circle" id="avatar-initials" aria-hidden="true">U</div>
+      <div>
+        <div class="header-name-row">
+          <h1 id="display-username">User</h1>
+          <div class="badges" id="header-badges"></div>
+        </div>
+        <p id="display-handle">@user</p>
+      </div>
+    </section>
+
+    <div class="tabs" role="tablist" aria-label="Account sections">
+      <button class="tab-btn active" id="tab-button-profile" type="button"
+        role="tab" aria-selected="true" aria-controls="tab-profile" data-tab="profile">
+        Profile
+      </button>
+      <button class="tab-btn" id="tab-button-settings" type="button"
+        role="tab" aria-selected="false" aria-controls="tab-settings" data-tab="settings">
+        Settings
+      </button>
+      <button class="tab-btn" id="tab-button-drafts" type="button"
+        role="tab" aria-selected="false" aria-controls="tab-drafts" data-tab="drafts">
+        Saved Drafts
+      </button>
+      <button class="tab-btn elite-tab" id="tab-button-elite" type="button"
+        role="tab" aria-selected="false" aria-controls="tab-elite" data-tab="elite">
+        Elite
+      </button>
+      <button class="tab-btn own
+1000
+er-tab" id="tab-button-owner" type="button"
+        role="tab" aria-selected="false" aria-controls="tab-owner" data-tab="owner">
+        Owner
+      </button>
     </div>
 
-    <header class="header-nav-container">
-        <a href="index.html" class="home-link">← Back to Feed</a>
+    <section class="tab-content active" id="tab-profile" role="tabpanel"
+      aria-labelledby="tab-button-profile">
+      <h2>Profile</h2>
+      <form id="profile-form">
+        <div class="form-group">
+          <label for="profile-name">Display Name</label>
+          <input type="text" id="profile-name" maxlength="80" required>
+        </div>
+        <div class="form-group">
+          <label for="profile-bio">Bio</label>
+          <textarea id="profile-bio" maxlength="500"></textarea>
+        </div>
+        <button class="btn-primary" type="submit">Save Profile</button>
+        <span class="status-msg" id="profile-status" role="status" aria-live="polite"></span>
+      </form>
+    </section>
 
-        <div class="nav-wrapper">
-            <button type="button" class="profile-link-btn" id="dynamic-user-nav" onclick="toggleDropdown(event)">
-                <svg class="profile-icon" viewBox="0 0 24 24" aria-hidden="true">
-                    <circle cx="12" cy="8" r="4"></circle>
-                    <path d="M4 21c.7-4 3.4-6 8-6s7.3 2 8 6"></path>
-                </svg>
-                <span id="nav-button-text">My Account</span>
-            </button>
+    <section class="tab-content" id="tab-settings" role="tabpanel"
+      aria-labelledby="tab-button-settings" hidden>
+      <h2>Settings</h2>
+      <form id="settings-form">
+        <div class="form-group">
+          <label for="new-password">Change Password</label>
+          <input type="password" id="new-password" autocomplete="new-password">
+        </div>
+        <label class="checkbox-row" for="notify-followed">
+          <input type="checkbox" id="notify-followed">
+          <span>Notify me when followed writers post a new note</span>
+        </label>
+        <label class="checkbox-row" for="show-online">
+          <input type="checkbox" id="show-online">
+          <span>Show online status to my Notemaker friends</span>
+        </label>
+        <button class="btn-primary" type="submit">Save Settings</button>
+        <span class="status-msg" id="settings-status" role="status" aria-live="polite"></span>
+      </form>
+    </section>
 
-            <div class="nav-dropdown-menu" id="account-dropdown">
-                <a href="#settings" onclick="switchTab('settings')">⚙️ Settings</a> Use code with caution. 👤 Profile 📁 Saved Drafts ⭐ Elite Verification 👑 Owner Permissions ✉️ Messages 🚪 Log Out U User @user 👤 Profile ⚙️ Settings 📁 Saved Drafts
-                ⭐ Elite Verification 👑 Owner Permissions Display Name Bio Save Profile Change Password Notify me when followed writers post a new note Show online status to my Notemaker friends Save Settings Save a Note Draft for Later Save Draft ⭐ Become
-                an Elite Notemaker Elite Notemakers unlock the ability to use HTML, CSS, limited JavaScript, and Markdown (MD) inside their notes! You qualify if you meet any of these criteria: Content Creator: YouTube, TikTok, or Twitch channel with
-                10,000+ subscribers/followers Music Artist: Verified musician, composer, or producer releasing original music Site Contributor: Worked on developing or moderating The lol project Public Figure: Notable creator, entertainer, or public personality
-                Qualification Category YouTube / TikTok / Twitch Creator (10,000+ Subs) Music Artist / Producer Worked on The lol project Famous / Public Figure Subscriber / Follower Count Channel, Music Portfolio, or Verification Link Tell us about your
-                work Submit Verification Application 👑 Site Owner & Full JS Permissions While standard Elite Notemakers are limited to safe sandboxed JS, Site Owners and Permitted Users chosen by the owner can run all unrestricted JavaScript (including
-                live
-                <script>
-                    tags) inside their notes.
-                    
-                    Enable Site Owner & Full JS privileges for my account
-                    Grant Full JS Access to a User
-                    Grant Full JS
-                    Users with Unrestricted Full JS Access:
-                    
-                    if (localStorage.getItem('loggedIn') !== 'true') {
-                    window.location.href = 'login.html';
-                    }
-                    const siteOwners = ["Denis Kuizinas"];
-                    const defaultDocs = [
-                    "Note idea: Thoughts on building a social network from scratch",
-                    "Joke draft: Why do programmers prefer dark mode? Because light attracts bugs!"
-                    ];
-                    document.addEventListener('DOMContentLoaded', () => {
-                    const savedUser = localStorage.getItem('username') || 'User';
-                    const savedBio = localStorage.getItem('userBio') || '';
-                    document.getElementById('display-username').innerText = savedUser;
-                    document.getElementById('display-handle').innerText = '@' + savedUser.toLowerCase().replace(/\s+/g, '');
-                    document.getElementById('avatar-initials').innerText = savedUser.charAt(0).toUpperCase();
-                    document.getElementById('profile-name').value = savedUser;
-                    document.getElementById('profile-bio').value = savedBio;
-                    const isOwner = siteOwners.includes(savedUser) || localStorage.getItem('isCurrentUserOwner') === 'true';
-                    document.getElementById('simulate-owner-toggle').checked = isOwner;
-                    renderDocs();
-                    renderEliteStatus();
-                    renderFullJsUsers();
-                    });
-                    function switchTab(tabName) {
-                    document.querySelectorAll('.tab-btn').forEach(btn => {
-                    btn.classList.toggle('active', btn.dataset.tab === tabName);
-                    });
-                    document.querySelectorAll('.tab-content').forEach(section => {
-                    section.classList.toggle('active', section.id === 'tab-' + tabName);
-                    });
-                    document.getElementById('account-dropdown').style.display = 'none';
-                    }
-                    function saveProfile() {
-                    const updatedUser = document.getElementById('profile-name').value.trim();
-                    const updatedBio = document.getElementById('profile-bio').value.trim();
-                    if (updatedUser) {
-                    localStorage.setItem('username', updatedUser);
-                    document.getElementById('display-username').innerText = updatedUser;
-                    document.getElementById('display-handle').innerText = '@' + updatedUser.toLowerCase().replace(/\s+/g, '');
-                    document.getElementById('avatar-initials').innerText = updatedUser.charAt(0).toUpperCase();
-                    }
-                    localStorage.setItem('userBio', updatedBio);
-                    const status = document.getElementById('profile-status');
-                    status.innerText = 'Profile saved!';
-                    setTimeout(() => status.innerText = '', 2500);
-                    }
-                    function saveSettings() {
-                    document.getElementById('new-password').value = '';
-                    const status = document.getElementById('settings-status');
-                    status.innerText = 'Settings updated!';
-                    setTimeout(() => status.innerText = '', 2500);
-                    }
-                    function getFullJsUsers() {
-                    return JSON.parse(localStorage.getItem('lolFullJsUsers') || '["Denis Kuizinas"]');
-                    }
-                    function saveFullJsUsers(list) {
-                    localStorage.setItem('lolFullJsUsers', JSON.stringify(list));
-                    }
-                    function toggleOwnerDemo(checked) {
-                    localStorage.setItem('isCurrentUserOwner', checked ? 'true' : 'false');
-                    localStorage.setItem('isCurrentUserFullJs', checked ? 'true' : 'false');
-                    if (checked) {
-                    localStorage.setItem('isCurrentUserElite', 'true');
-                    }
-                    renderEliteStatus();
-                    renderFullJsUsers();
-                    }
-                    function grantFullJsUser() {
-                    const currentUser = localStorage.getItem('username') || 'User';
-                    const isOwner = siteOwners.includes(currentUser) || localStorage.getItem('isCurrentUserOwner') === 'true';
-                    if (!isOwner) {
-                    alert('Only Site Owners can grant Full JS access. Enable "Test as Site Owner" above to test this feature.');
-                    return;
-                    }
-                    const input = document.getElementById('permit-username-input');
-                    const target = input.value.trim();
-                    if (!target) return;
-                    const list = getFullJsUsers();
-                    if (!list.includes(target)) {
-                    list.push(target);
-                    saveFullJsUsers(list);
-                    const notifs = JSON.parse(localStorage.getItem('lolNotifications') || '[]');
-                    notifs.unshift({
-                    id: Date.now(),
-                    text: 👑 Site Owner granted Full JS permissions to ${target}!,
-                    unread: true
-                    });
-                    localStorage.setItem('lolNotifications', JSON.stringify(notifs));
-                    }
-                    input.value = '';
-                    renderFullJsUsers();
-                    }
-                    function revokeFullJsUser(target) {
-                    if (siteOwners.includes(target)) {
-                    alert('Cannot revoke permissions from a primary Site Owner.');
-                    return;
-                    }
-                    const list = getFullJsUsers().filter(u => u !== target);
-                    saveFullJsUsers(list);
-                    renderFullJsUsers();
-                    }
-                    function renderFullJsUsers() {
-                    const ul = document.getElementById('fulljs-users-list');
-                    const list = getFullJsUsers();
-                    ul.innerHTML = '';
-                    list.forEach(user => {
-                    const isPrimaryOwner = siteOwners.includes(user);
-                    const li = document.createElement('li');
-                    li.className = 'doc-item';
-                    li.innerHTML = <span>👑 <strong>${user}</strong> ${isPrimaryOwner ? '(Primary Site Owner)' : '(Permitted Full JS User)'}</span> ${!isPrimaryOwner ?<button type="button" class="delete-doc-btn" onclick="revokeFullJsUser('${user.replace(/'/g, "\'")}')">Revoke: '<span style="font-size:0.8rem; color:#6b7280;">Permanent</span>'};
-                    ul.appendChild(li);
-                    });
-                    }
-                    function toggleSubCountField() {
-                    const cat = document.getElementById('elite-category').value;
-                    const subGroup = document.getElementById('sub-count-group');
-                    const subInput = document.getElementById('elite-subs');
-                    if (cat === 'creator_10k') {
-                    subGroup.style.display = 'block';
-                    subInput.required = true;
-                    } else {
-                    subGroup.style.display = 'none';
-                    subInput.required = false;
-                    }
-                    }
-                    function submitEliteApplication(e) {
-                    e.preventDefault();
-                    const category = document.getElementById('elite-category').value;
-                    const subs = document.getElementById('elite-subs').value;
-                    const link = document.getElementById('elite-link').value.trim();
-                    const notes = document.getElementById('elite-notes').value.trim();
-                    const categoryNames = {
-                    creator_10k: "YouTube / TikTok / Twitch (10,000+ Subs)",
-                    music_artist: "Music Artist / Producer",
-                    site_staff: "Site Developer / Contributor",
-                    famous_public: "Famous / Public Figure"
-                    };
-                    const appData = {
-                    status: 'pending',
-                    categoryLabel: categoryNames[category],
-                    subs: subs || 'N/A',
-                    link: link,
-                    notes: notes,
-                    submittedAt: new Date().toLocaleDateString()
-                    };
-                    localStorage.setItem('eliteApplication', JSON.stringify(appData));
-                    renderEliteStatus();
-                    }
-                    function approveEliteDemo() {
-                    const stored = localStorage.getItem('eliteApplication');
-                    if (stored) {
-                    const appData = JSON.parse(stored);
-                    appData.status = 'approved';
-                    localStorage.setItem('eliteApplication', JSON.stringify(appData));
-                    }
-                    localStorage.setItem('isCurrentUserElite', 'true');
-                    const notifs = JSON.parse(localStorage.getItem('lolNotifications') || '[]');
-                    notifs.unshift({
-                    id: Date.now(),
-                    text: "⭐ Congratulations! Your Elite Notemaker application was approved. HTML, CSS, limited JS & MD are now unlocked!",
-                    unread: true
-                    });
-                    localStorage.setItem('lolNotifications', JSON.stringify(notifs));
-                    renderEliteStatus();
-                    }
-                    function resetEliteApplication() {
-                    localStorage.removeItem('eliteApplication');
-                    localStorage.setItem('isCurrentUserElite', 'false');
-                    renderEliteStatus();
-                    }
-                    function renderEliteStatus() {
-                    const savedUser = localStorage.getItem('username') || 'User';
-                    const isOwner = siteOwners.includes(savedUser) || localStorage.getItem('isCurrentUserOwner') === 'true';
-                    const isFullJs = isOwner || localStorage.getItem('isCurrentUserFullJs') === 'true' || getFullJsUsers().includes(savedUser);
-                    const isApproved = isFullJs || localStorage.getItem('isCurrentUserElite') === 'true';
-                    const stored = localStorage.getItem('eliteApplication');
-                    const appData = stored ? JSON.parse(stored) : null;
-                    const headerBadges = document.getElementById('header-badges');
-                    let badgesHTML = '';
-                    if (isOwner) {
-                    badgesHTML += '👑 Site Owner ';
-                    } else if (isFullJs) {
-                    badgesHTML += '👑 Full JS Permitted ';
-                    }
-                    if (isApproved) {
-                    badgesHTML += '⭐ Elite Notemaker';
-                    }
-                    headerBadges.innerHTML = badgesHTML;
-                    const statusBox = document.getElementById('elite-status-container');
-                    const form = document.getElementById('elite-app-form');
-                    if (isApproved) {
-                    form.style.display = 'none';
-                    statusBox.innerHTML = <div class="application-status-card approved"> <span class="status-pill approved">✓ Verified ${isFullJs ? 'Full JS Creator' : 'Elite Notemaker'}</span> <h3 style="margin-bottom:6px; color:#14532d;">You have ${isFullJs ? 'Unrestricted Full JS' : 'Elite Notemaker'} privileges!</h3> <p style="font-size:0.92rem; color:#166534; margin-bottom:14px;"> You can use <strong>HTML, CSS, Markdown, and ${isFullJs ? 'all unrestricted JavaScript (including &lt;script&gt; tags)' : 'limited safe JavaScript'}</strong> when writing notes on the home feed. </p> <div style="display:flex; gap:10px; flex-wrap:wrap;"> <a href="index.html" class="btn-elite" style="text-decoration:none; display:inline-block;">Write a Note →</a> <button type="button" class="btn-secondary" onclick="resetEliteApplication()">Reset Demo Status</button> </div> </div>;
-                    return;
-                    }
-                    if (appData && appData.status === 'pending') {
-                    form.style.display = 'none';
-                    statusBox.innerHTML = <div class="application-status-card"> <span class="status-pill pending">⏳ Application Under Review</span> <h3 style="margin-bottom:6px; color:#713f12;">We received your Elite Notemaker application!</h3> <p style="font-size:0.9rem; color:#854d0e; margin-bottom:4px;"><strong>Category:</strong> ${appData.categoryLabel}</p> <p style="font-size:0.9rem; color:#854d0e; margin-bottom:14px;"><strong>Link:</strong> ${appData.link}</p> <div style="display:flex; gap:10px; flex-wrap:wrap;"> <button type="button" class="btn-elite" onclick="approveEliteDemo()">⚡ Simulate Instant Approval</button> <button type="button" class="btn-secondary" onclick="resetEliteApplication()">Withdraw Application</button> </div> </div>;
-                    } else {
-                    form.style.display = 'block';
-                    statusBox.innerHTML = '';
-                    toggleSubCountField();
-                    }
-                    }
-                    function getDocs() {
-                    const stored = localStorage.getItem('userDocs');
-                    return stored ? JSON.parse(stored) : defaultDocs;
-                    }
-                    function renderDocs() {
-                    const list = document.getElementById('doc-list');
-                    const docs = getDocs();
-                    list.innerHTML = '';
-                    if (docs.length === 0) {
-                    list.innerHTML = 'No saved drafts yet.';
-                    return;
-                    }
-                    docs.forEach((doc, index) => {
-                    const li = document.createElement('li');
-                    li.className = 'doc-item';
-                    li.innerHTML = <span>📝 ${doc}</span> <button type="button" class="delete-doc-btn" onclick="deleteDocument(${index})">Delete</button>;
-                    list.appendChild(li);
-                    });
-                    }
-                    function addDocument() {
-                    const input = document.getElementById('new-doc-title');
-                    const title = input.value.trim();
-                    if (!title) return;
-                    const docs = getDocs();
-                    docs.unshift(title);
-                    localStorage.setItem('userDocs', JSON.stringify(docs));
-                    input.value = '';
-                    renderDocs();
-                    }
-                    function deleteDocument(index) {
-                    const docs = getDocs();
-                    docs.splice(index, 1);
-                    localStorage.setItem('userDocs', JSON.stringify(docs));
-                    renderDocs();
-                    }
-                    function toggleDropdown(e) {
-                    e.stopPropagation();
-                    const dropdown = document.getElementById('account-dropdown');
-                    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-                    }
-                    function logoutUser(e) {
-                    e.preventDefault();
-                    localStorage.setItem('loggedIn', 'false');
-                    window.location.href = 'index.html';
-                    }
-                    window.addEventListener('click', (e) => {
-                    const navButton = document.getElementById('dynamic-user-nav');
-                    const dropdown = document.getElementById('account-dropdown');
-                    if (navButton && dropdown && !navButton.contains(e.target)) {
-                    dropdown.style.display = 'none';
-                    }
-                    });
+    <section class="tab-content" id="tab-drafts" role="tabpanel"
+      aria-labelledby="tab-button-drafts" hidden>
+      <h2>Save a Note Draft for Later</h2>
+      <form id="draft-form">
+        <div class="doc-input-row">
+          <label class="sr-only" for="new-doc-title">Draft title</label>
+          <input type="text" id="new-doc-title" maxlength="200"
+            placeholder="Enter a draft title" required>
+          <button class="btn-primary" type="submit">Save Draft</button>
+        </div>
+      </form>
+      <ul class="doc-list" id="doc-list" aria-label="Saved drafts"></ul>
+    </section>
+
+    <section class="tab-content" id="tab-elite" role="tabpanel"
+      aria-labelledby="tab-button-elite" hidden>
+      <div class="info-box elite-info-box">
+        <h2>⭐ Become an Elite Notemaker</h2>
+        <p>Elite Notemakers can use HTML, CSS, limited JavaScript, and Markdown in their notes.</p>
+        <p>You may qualify through any of these criteria:</p>
+        <ul>
+          <li>Content creator with 10,000+ YouTube, TikTok, or Twitch subscribers/followers</li>
+          <li>Verified musician, composer, or producer releasing original music</li>
+          <li>Contributor to the development or moderation of The lol project</li>
+          <li>Notable creator, entertainer, or public personality</li>
+        </ul>
+      </div>
+
+      <div id="elite-status-container" aria-live="polite"></div>
+
+      <form id="elite-app-form">
+        <div class="form-group">
+          <label for="elite-category">Qualification Category</label>
+          <select id="elite-category" required>
+            <option value="">Choose a category</option>
+            <option value="creator_10k">YouTube / TikTok / Twitch Creator (10,000+ followers)</option>
+            <option value="music_artist">Music Artist / Producer</option>
+            <option value="site_staff">Site Developer / Contributor</option>
+            <option value="famous_public">Famous / Public Figure</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="sub-count-group" hidden>
+          <label for="elite-subs">Subscriber / Follower Count</label>
+          <input type="number" id="elite-subs" min="10000" step="1">
+        </div>
+
+        <div class="form-group">
+  
+1000
+        <label for="elite-link">Channel, Portfolio, or Verification Link</label>
+          <input type="url" id="elite-link" placeholder="https://example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="elite-notes">Tell us about your work</label>
+          <textarea id="elite-notes" maxlength="2000"></textarea>
+        </div>
+
+        <button class="btn-elite" type="submit">Submit Verification Application</button>
+      </form>
+    </section>
+
+    <section class="tab-content" id="tab-owner" role="tabpanel"
+      aria-labelledby="tab-button-owner" hidden>
+      <div class="info-box owner-info-box">
+        <h2>👑 Site Owner &amp; Full JS Permissions</h2>
+        <p>
+          This page includes a local demo toggle. A real site must enforce owner
+          permissions on the server; browser storage is not a secure way to grant access.
+        </p>
+      </div>
+
+      <label class="checkbox-row" for="simulate-owner-toggle">
+        <input type="checkbox" id="simulate-owner-toggle">
+        <span>Enable Site Owner &amp; Full JS privileges for my account (demo only)</span>
+      </label>
+
+      <h2>Grant Full JS Access to a User</h2>
+      <form id="grant-user-form">
+        <div class="doc-input-row">
+          <label class="sr-only" for="permit-username-input">Username to grant access</label>
+          <input type="text" id="permit-username-input" maxlength="80"
+            placeholder="Username" required>
+          <button class="btn-owner" type="submit">Grant Full JS</button>
+        </div>
+      </form>
+
+      <h3>Users with Unrestricted Full JS Access</h3>
+      <ul class="doc-list" id="fulljs-users-list"></ul>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    const siteOwners = ["Denis Kuizinas"];
+    const defaultDocs = [
+      "Note idea: Thoughts on building a social network from scratch",
+      "Joke draft: Why do programmers prefer dark mode? Because light attracts bugs!"
+    ];
+
+    function readArray(key, fallback) {
+      try {
+        const value = JSON.parse(localStorage.getItem(key));
+        return Array.isArray(value) ? value : fallback;
+      } catch {
+        return fallback;
+      }
+    }
+
+    function getFullJsUsers() {
+      return readArray("lolFullJsUsers", ["Denis Kuizinas"]);
+    }
+
+    function saveFullJsUsers(users) {
+      localStorage.setItem("lolFullJsUsers", JSON.stringify(users));
+    }
+
+    function getDocs() {
+      return readArray("userDocs", defaultDocs);
+    }
+
+    function switchTab(tabName) {
+      const target = document.getElementById("tab-" + tabName);
+      if (!target) return;
+
+      document.querySelectorAll(".tab-btn").forEach((button) => {
+        const active = button.dataset.tab === tabName;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-selected", String(active));
+      });
+
+      document.querySelectorAll(".tab-content").forEach((panel) => {
+        const active = panel.id === "tab-" + tabName;
+        panel.classList.toggle("active", active);
+        panel.hidden = !active;
+      });
+
+      closeDropdown();
+    }
+
+    function closeDropdown() {
+      const dropdown = document.getElementById("account-dropdown");
+      const button = document.getElementById("dynamic-user-nav");
+      dropdown.style.display = "none";
+      button.setAttribute("aria-expanded", "false");
+    }
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById("account-dropdown");
+      const button = document.getElementById("dynamic-user-nav");
+      const opening = dropdown.style.display !== "block";
+      dropdown.style.display = opening ? "block" : "none";
+      button.setAttribute("aria-expanded", String(opening));
+    }
+
+    function renderBadges() {
+      const username = localStorage.getItem("username") || "User";
+      const isOwner =
+        siteOwners.includes(username) ||
+        localStorage.getItem("isCurrentUserOwner") === "true";
+      const isFullJs =
+        isOwner ||
+        localStorage.getItem("isCurrentUserFullJs") === "true" ||
+        getFullJsUsers().includes(username
+1000
+);
+      const isElite =
+        isFullJs || localStorage.getItem("isCurrentUserElite") === "true";
+      const container = document.getElementById("header-badges");
+
+      container.replaceChildren();
+
+      if (isOwner || isFullJs) {
+        const badge = document.createElement("span");
+        badge.className = "owner-badge";
+        badge.textContent = isOwner ? "👑 Site Owner" : "👑 Full JS Permitted";
+        container.appendChild(badge);
+      }
+
+      if (isElite) {
+        const badge = document.createElement("span");
+        badge.className = "elite-badge";
+        badge.textContent = "⭐ Elite Notemaker";
+        container.appendChild(badge);
+      }
+    }
+
+    function renderFullJsUsers() {
+      const list = document.getElementById("fulljs-users-list");
+      list.replaceChildren();
+
+      getFullJsUsers().forEach((username) => {
+        const item = document.createElement("li");
+        item.className = "doc-item";
+
+        const text = document.createElement("span");
+        const isPrimaryOwner = siteOwners.includes(username);
+        text.textContent = `👑 ${username} ${
+          isPrimaryOwner ? "(Primary Site Owner)" : "(Permitted Full JS User)"
+        }`;
+        item.appendChild(text);
+
+        if (!isPrimaryOwner) {
+          const revokeButton = document.createElement("button");
+          revokeButton.type = "button";
+          revokeButton.className = "delete-doc-btn";
+          revokeButton.textContent = "Revoke";
+          revokeButton.addEventListener("click", () => revokeFullJsUser(username));
+          item.appendChild(revokeButton);
+        }
+
+        list.appendChild(item);
+      });
+
+      if (list.children.length === 0) {
+        const empty = document.createElement("li");
+        empty.textContent = "No users have been granted access.";
+        list.appendChild(empty);
+      }
+    }
+
+    function revokeFullJsUser(username) {
+      if (siteOwners.includes(username)) {
+        alert("Cannot revoke permissions from a primary Site Owner.");
+        return;
+      }
+
+      saveFullJsUsers(getFullJsUsers().filter((user) => user !== username));
+      renderFullJsUsers();
+      renderBadges();
+    }
+
+    function renderDocs() {
+      const list = document.getElementById("doc-list");
+      const docs = getDocs();
+      list.replaceChildren();
+
+      if (docs.length === 0) {
+        const empty = document.createElement("li");
+        empty.textContent = "No saved drafts yet.";
+        list.appendChild(empty);
+        return;
+      }
+
+      docs.forEach((doc, index) => {
+        const item = document.createElement("li");
+        item.className = "doc-item";
+
+        const title = document.createElement("span");
+        title.textContent = `📝 ${doc}`;
+
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "delete-doc-btn";
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", () => deleteDocument(index));
+
+        item.append(title, deleteButton);
+        list.appendChild(item);
+      });
+    }
+
+    function deleteDocument(index) {
+      const docs = getDocs();
+      docs.splice(index, 1);
+      localStorage.setItem("userDocs", JSON.stringify(docs));
+      renderDocs();
+    }
+
+    function setSubCountVisibility() {
+      const creatorSelected =
+        document.getElementById("elite-category").value === "creator_10k";
+      const group = document.getElementById("sub-count-group");
+      const input = document.getElementById("elite-subs");
+
+      group.hidden = !creatorSelected;
+      input.required = creatorSelected;
+    }
+
+    function makeStatusCard({ approved, title, description, buttons }) {
+      const card = document.createElement("div");
+      card.className = "application-status-card" + (approved ? " approved" : "");
+
+      const pill = document.createElement("span");
+      pill.className = "status-pill " + (approved ? "approved" : "pending");
+      pill.textContent = approved ? "✓ Verified" : "⏳ Application Under Review";
+
+      const heading = document.create
+1000
+Element("h3");
+      heading.textContent = title;
+
+      const paragraph = document.createElement("p");
+      paragraph.textContent = description;
+
+      const actions = document.createElement("div");
+      actions.style.cssText = "display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;";
+
+      card.append(pill, heading, paragraph, actions);
+
+      buttons.forEach(({ label, className, action }) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = className;
+        button.textContent = label;
+        button.addEventListener("click", action);
+        actions.appendChild(button);
+      });
+
+      return card;
+    }
+
+    function renderEliteStatus() {
+      const username = localStorage.getItem("username") || "User";
+      const isOwner =
+        siteOwners.includes(username) ||
+        localStorage.getItem("isCurrentUserOwner") === "true";
+      const isFullJs =
+        isOwner ||
+        localStorage.getItem("isCurrentUserFullJs") === "true" ||
+        getFullJsUsers().includes(username);
+      const isApproved =
+        isFullJs || localStorage.getItem("isCurrentUserElite") === "true";
+
+      const form = document.getElementById("elite-app-form");
+      const container = document.getElementById("elite-status-container");
+      container.replaceChildren();
+
+      let application = null;
+      try {
+        application = JSON.parse(localStorage.getItem("eliteApplication"));
+      } catch {
+        application = null;
+      }
+
+      if (isApproved) {
+        form.hidden = true;
+        container.appendChild(makeStatusCard({
+          approved: true,
+          title: `You have ${isFullJs ? "Unrestricted Full JS" : "Elite Notemaker"} privileges!`,
+          description: isFullJs
+            ? "Your account has Full JS privileges in this demo."
+            : "Your account has Elite Notemaker privileges in this demo.",
+          buttons: [{
+            label: "Reset Demo Status",
+            className: "btn-secondary",
+            action: resetEliteApplication
+          }]
+        }));
+        return;
+      }
+
+      if (application && application.status === "pending") {
+        form.hidden = true;
+        container.appendChild(makeStatusCard({
+          approved: false,
+          title: "We received your Elite Notemaker application!",
+          description: `Category: ${application.categoryLabel || "Not specified"} — Link: ${
+            application.link || "Not provided"
+          }`,
+          buttons: [
+            {
+              label: "⚡ Simulate Instant Approval",
+              className: "btn-elite",
+              action: approveEliteDemo
+            },
+            {
+              label: "Withdraw Application",
+              className: "btn-secondary",
+              action: resetEliteApplication
+            }
+          ]
+        }));
+        return;
+      }
+
+      form.hidden = false;
+      setSubCountVisibility();
+    }
+
+    function approveEliteDemo() {
+      try {
+        const application = JSON.parse(localStorage.getItem("eliteApplication"));
+        if (application) {
+          application.status = "approved";
+          localStorage.setItem("eliteApplication", JSON.stringify(application));
+        }
+      } catch {
+        // Ignore invalid saved demo data.
+      }
+
+      localStorage.setItem("isCurrentUserElite", "true");
+      renderBadges();
+      renderEliteStatus();
+    }
+
+    function resetEliteApplication() {
+      localStorage.removeItem("eliteApplication");
+      localStorage.setItem("isCurrentUserElite", "false");
+      renderBadges();
+      renderEliteStatus();
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (localStorage.getItem("loggedIn") !== "true") {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const username = localStorage.getItem("username") || "User";
+      const bio = localStorage.getItem("userBio") || "";
+
+      document.getElementById("display-username").textContent = username;
+      document.getElementById("display-handle").textContent =
+        "@" + username.to
+1000
+LowerCase().replace(/\s+/g, "");
+      document.getElementById("avatar-initials").textContent =
+        username.charAt(0).toUpperCase() || "U";
+      document.getElementById("profile-name").value = username;
+      document.getElementById("profile-bio").value = bio;
+
+      document.getElementById("simulate-owner-toggle").checked =
+        siteOwners.includes(username) ||
+        localStorage.getItem("isCurrentUserOwner") === "true";
+
+      renderDocs();
+      renderBadges();
+      renderFullJsUsers();
+      renderEliteStatus();
+    });
+
+    document.querySelectorAll(".tab-btn").forEach((button) => {
+      button.addEventListener("click", () => switchTab(button.dataset.tab));
+    });
+
+    document.querySelectorAll("[data-tab-link]").forEach((link) => {
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        switchTab(link.dataset.tabLink);
+      });
+    });
+
+    document.getElementById("dynamic-user-nav").addEventListener("click", toggleDropdown);
+
+    document.addEventListener("click", (event) => {
+      const wrapper = document.querySelector(".nav-wrapper");
+      if (!wrapper.contains(event.target)) closeDropdown();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeDropdown();
+    });
+
+    document.getElementById("profile-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const username = document.getElementById("profile-name").value.trim();
+      const bio = document.getElementById("profile-bio").value.trim();
+
+      if (!username) return;
+
+      localStorage.setItem("username", username);
+      localStorage.setItem("userBio", bio);
+
+      document.getElementById("display-username").textContent = username;
+      document.getElementById("display-handle").textContent =
+        "@" + username.toLowerCase().replace(/\s+/g, "");
+      document.getElementById("avatar-initials").textContent =
+        username.charAt(0).toUpperCase();
+
+      renderBadges();
+
+      const status = document.getElementById("profile-status");
+      status.textContent = "Profile saved!";
+      setTimeout(() => { status.textContent = ""; }, 2500);
+    });
+
+    document.getElementById("settings-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      // This demo does not implement server-side password or settings updates.
+      document.getElementById("new-password").value = "";
+
+      const status = document.getElementById("settings-status");
+      status.textContent = "Settings updated!";
+      setTimeout(() => { status.textContent = ""; }, 2500);
+    });
+
+    document.getElementById("draft-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const input = document.getElementById("new-doc-title");
+      const title = input.value.trim();
+      if (!title) return;
+
+      const docs = getDocs();
+      docs.unshift(title);
+      localStorage.setItem("userDocs", JSON.stringify(docs));
+      input.value = "";
+      renderDocs();
+    });
+
+    document.getElementById("elite-category").addEventListener("change", setSubCountVisibility);
+
+    document.getElementById("elite-app-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const category = document.getElementById("elite-category").value;
+      const categories = {
+        creator_10k: "YouTube / TikTok / Twitch Creator (10,000+ followers)",
+        music_artist: "Music Artist / Producer",
+        site_staff: "Site Developer / Contributor",
+        famous_public: "Famous / Public Figure"
+      };
+
+      const application = {
+        status: "pending",
+        categoryLabel: categories[category] || "Not specified",
+        subs: document.getElementById("elite-subs").value,
+        link: document.getElementById("elite-link").value.trim(),
+        notes: document.getElementById("elite-notes").value.trim(),
+        submittedAt: new Date().toLocaleDateString()
+      };
+
+      localStorage.setItem("eliteApplication", JSON.stringify(application));
+      renderEliteStatus();
+    });
+
+    document.getElement
+8cf
+ById("simulate-owner-toggle").addEventListener("change", (event) => {
+      const enabled = event.target.checked;
+      localStorage.setItem("isCurrentUserOwner", String(enabled));
+      localStorage.setItem("isCurrentUserFullJs", String(enabled));
+
+      if (enabled) {
+        localStorage.setItem("isCurrentUserElite", "true");
+      }
+
+      renderBadges();
+      renderEliteStatus();
+      renderFullJsUsers();
+    });
+
+    document.getElementById("grant-user-form").addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const currentUser = localStorage.getItem("username") || "User";
+      const isOwner =
+        siteOwners.includes(currentUser) ||
+        localStorage.getItem("isCurrentUserOwner") === "true";
+
+      if (!isOwner) {
+        alert('Only Site Owners can grant Full JS access. Enable the demo owner toggle to test this feature.');
+        return;
+      }
+
+      const input = document.getElementById("permit-username-input");
+      const target = input.value.trim();
+      if (!target) return;
+
+      const users = getFullJsUsers();
+      if (!users.includes(target)) {
+        users.push(target);
+        saveFullJsUsers(users);
+      }
+
+      input.value = "";
+      renderFullJsUsers();
+    });
+
+    document.getElementById("logout-link").addEventListener("click", () => {
+      localStorage.setItem("loggedIn", "false");
+    });
+  </script>
+</body>
+</html>
